@@ -9,3 +9,6 @@ __pycache__/
 
 # Personal research decks in the original local workspace
 /slides_副本/
+
+# Disposable local QA decks
+/.editor-test/

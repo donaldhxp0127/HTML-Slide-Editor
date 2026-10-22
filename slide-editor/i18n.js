@@ -57,6 +57,12 @@ const translations = {
     '来源不允许':'許可されていないアクセス元です', '文件过大':'ファイルが大きすぎます', '无效路径':'無効なパスです', '不存在':'見つかりません'
   }
 };
+
+// Advanced editing controls.
+Object.assign(translations.en,{"＋ 图片": "＋ Image", "删除页面": "Delete slide", "组合": "Group", "取消组合": "Ungroup", "替换图片": "Replace image", "图片裁剪 / %": "Image crop / %", "重置裁剪": "Reset crop", "图层": "Layers", "上移一层": "Bring forward", "下移一层": "Send backward", "锁定 / 解锁": "Lock / Unlock", "隐藏 / 显示": "Hide / Show", "保存前差异预览": "Review changes before saving", "取消": "Cancel", "确认保存": "Confirm save", "原文件": "Original", "修改后": "Edited", "请至少保留一页": "Keep at least one slide.", "请选择同一容器中的多个元素": "Select multiple elements in the same container.", "请选择图片": "Select an image.", "图片不能超过 8 MB": "Images must be under 8 MB.", "所选元素已锁定": "The selected element is locked.", "元素": "elements", "新增行": "added lines", "删除行": "removed lines", "无法读取图片": "Unable to read the image."});
+Object.assign(translations.ja,{"＋ 图片": "＋ 画像", "删除页面": "スライドを削除", "组合": "グループ化", "取消组合": "グループ解除", "替换图片": "画像を置換", "图片裁剪 / %": "画像トリミング / %", "重置裁剪": "トリミングを解除", "图层": "レイヤー", "上移一层": "前面へ", "下移一层": "背面へ", "锁定 / 解锁": "ロック / 解除", "隐藏 / 显示": "非表示 / 表示", "保存前差异预览": "保存前に変更を確認", "取消": "キャンセル", "确认保存": "保存を確定", "原文件": "元のファイル", "修改后": "変更後", "请至少保留一页": "スライドは最低1枚必要です。", "请选择同一容器中的多个元素": "同じ親要素内の複数要素を選択してください。", "请选择图片": "画像を選択してください。", "图片不能超过 8 MB": "画像は8 MB以下にしてください。", "所选元素已锁定": "選択した要素はロックされています。", "元素": "要素", "新增行": "追加行", "删除行": "削除行", "无法读取图片": "画像を読み込めません。"});
+Object.assign(translations.en,{'上移页面':'Move slide up','下移页面':'Move slide down','调整大小':'Resize'});
+Object.assign(translations.ja,{'上移页面':'スライドを上へ','下移页面':'スライドを下へ','调整大小':'サイズ変更'});
 let language = 'zh-CN';
 try { language = localStorage.getItem('slide-studio-language') || language; } catch {}
 if (!['zh-CN','en','ja'].includes(language)) language = 'zh-CN';
