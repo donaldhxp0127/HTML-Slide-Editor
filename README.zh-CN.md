@@ -56,3 +56,5 @@ Vercel 网页版通过「导入 HTML / 文件夹」读取本机文件，不会�
 部署时在 Vercel 导入仓库，选择 Other，根目录为 `./`。仓库中的 vercel.json 已配置 `npm run build` 和输出目录 `web-dist`，无需数据库或环境变量。构建只包含编辑器、依赖和公开教学素材，不包含个人幻灯片、备份或 Mac 应用。
 
 本地预览部署版本：运行 `npm run build`，再运行 `python3 -m http.server 8766 --directory web-dist`。编辑教学源文件 `examples/landing-page/index.html` 后，先运行 `node scripts/build-tutorial.mjs` 生成离线教学页。
+
+左侧「幻灯片」标题旁的箭头可折叠／展开预览栏，折叠后保留展开按钮，画布使用释放的空间；本设备会记住此状态。

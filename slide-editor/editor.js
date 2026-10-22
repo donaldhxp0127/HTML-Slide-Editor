@@ -2,6 +2,20 @@
 const $=id=>document.getElementById(id), frame=$('canvas');
 let path='',version='',current=0,selected=null,history=[],cursor=-1,dirty=false,scale=1,originalScripts=[];
 let savedHTML='', statusKey='就绪', sourceDraft=false, sourceLocationKey='';
+let slidesCollapsed=false;
+try{slidesCollapsed=localStorage.getItem('slide-studio-slides-collapsed')==='true';}catch{}
+function updateSlideSidebar(){
+  document.body.classList.toggle('slides-collapsed',slidesCollapsed);
+  $('slidePreviewContent').hidden=slidesCollapsed;
+  const button=$('toggleSlides'),label=t(slidesCollapsed?'展开预览':'折叠预览');
+  button.textContent=slidesCollapsed?'›':'‹';
+  button.setAttribute('aria-expanded',String(!slidesCollapsed));
+  button.setAttribute('aria-label',label);button.title=label;
+}
+$('toggleSlides').onclick=()=>{
+  slidesCollapsed=!slidesCollapsed;updateSlideSidebar();
+  try{localStorage.setItem('slide-studio-slides-collapsed',String(slidesCollapsed));}catch{}
+};
 const status=s=>{statusKey=s;$('status').textContent=t(s);};
 async function api(route,data){if(window.slideStudioStorage.handles(data.path))return window.slideStudioStorage[route](data.path&&route==='load'?data.path:data);const r=await fetch('/api/'+route,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});const v=await r.json();if(!r.ok)throw Error(v.error);return v;}
 function doc(){return frame.contentDocument;}
@@ -83,6 +97,7 @@ function updateSourceHighlight(){
   container.style.setProperty('--location-height',((last-first+1)*lineHeight)+'px');
 }
 function refreshDynamicLanguage(){
+  updateSlideSidebar();
   status(statusKey);
   $('selection').textContent=selected?selected.tagName.toLowerCase():t('尚未选择元素');
   $('selector').textContent=selected?selected.className||t('无 class'):t('点击画布中的文字或图片');

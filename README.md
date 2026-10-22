@@ -83,6 +83,7 @@ After adding files, refresh the editor, select a deck from the dropdown, and cli
 
 ## Editing
 
+- **Slide previews:** use the chevron beside the sidebar heading to collapse or expand previews. The canvas uses the freed space, and the choice is remembered on this device.
 - **Select:** click text, an image, or a container. On narrow windows, use **Properties** to show the inspector.
 - **Edit text:** double-click text and type, including while Drag mode is enabled. Press `Esc` to finish. Edit within existing styled text to retain nested formatting.
 - **Resize and align:** drag any of the eight selection handles. Hold `Shift` on a corner to retain the aspect ratio. In Drag mode, elements snap to slide edges, the center, and common content edges; pink guides show alignment. Hold `Alt` to bypass snapping.

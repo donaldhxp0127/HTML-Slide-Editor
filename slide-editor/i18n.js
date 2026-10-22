@@ -106,6 +106,8 @@ Object.assign(translations.ja,{
   '浏览器存储不可用，请导出 HTML 保存修改。':'ブラウザに保存できません。HTMLを書き出して変更を保存してください。',
   '重置教学示例？此浏览器保存的教学修改将被清除。':'教材をリセットしますか？このブラウザに保存した教材の変更は消去されます。'
 });
+Object.assign(translations.en,{'折叠预览':'Collapse previews','展开预览':'Expand previews'});
+Object.assign(translations.ja,{'折叠预览':'プレビューを折りたたむ','展开预览':'プレビューを開く'});
 let language = 'zh-CN';
 try { language = localStorage.getItem('slide-studio-language') || language; } catch {}
 if (!['zh-CN','en','ja'].includes(language)) language = 'zh-CN';
