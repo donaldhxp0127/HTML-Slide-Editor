@@ -1,60 +1,137 @@
+<div align="center">
+
+<img src="docs/images/mark.svg" width="72" height="72" alt="Slide Studio 标志">
+
 # Slide Studio
 
-[English](README.md) · [简体中文](README.zh-CN.md)
+### 像编辑幻灯片一样操作，保留 HTML 的自由。
 
-[打开在线编辑器](https://html-slide-editor-sepia.vercel.app/)
+为 HTML 演示文稿准备的可视化工作台。<br>
+直接改文字、调整布局，也能随时回到清晰可读的源码。
 
-为本文件夹已有的 `.slide` HTML 幻灯片制作的本地可视化编辑器，无需安装依赖。
+**[在线体验 →](https://html-slide-editor-sepia.vercel.app/)** &nbsp; · &nbsp; [开始使用](#开始使用) &nbsp; · &nbsp; [完整指南](docs/guide.zh-CN.md) &nbsp; · &nbsp; [English](README.md)
 
-## Mac 桌面应用
+`网页版 + macOS` &nbsp; `标准 HTML` &nbsp; `中文 · English · 日本語`
 
-双击 `dist/Slide Studio.app` 即可打开独立窗口，无需 Python、Node.js 或终端。首次启动进入教学示例，可点击「打开文件 / 文件夹」或按 Cmd+O 打开自己的文件。
+</div>
 
-打包命令：`./desktop/macos/build.sh`。当前产物适用于 Apple Silicon Mac，使用本机临时签名，尚未做 Apple 开发者签名和公证。原生菜单和宿主对话框暂用英文，编辑器界面保留中英日三语。详见 [Mac 版说明](desktop/macos/README.md)。
+[![Slide Studio 编辑器：页面缩略图、实时画布和元素属性面板](docs/images/editor-overview.jpg)](https://html-slide-editor-sepia.vercel.app/)
 
-## 浏览器版启动
+<p align="center"><sub>真实界面截图。首次打开，即可从内置五页教学开始练习。</sub></p>
 
-需要 Python 3.9 或更新版本。将包含 `.slide` 页面的幻灯片文件夹放到项目根目录，保持 CSS、JS 和图片的相对路径。刷新编辑器后即可选择。
+## 从 AI 生成，到自己调整
 
-双击 `slide-editor/启动编辑器.command`，保持终端窗口开启。浏览器打开 http://127.0.0.1:8765 。也可以在项目根目录运行 `python3 slide-editor/server.py`。
+让 AI 写出第一版 HTML，或打开你已有的幻灯片。接下来的小改动，可以自己完成：改一个标题，移动图片，对齐卡片，调整页序。文件仍是普通 HTML，人工和 AI 都能继续修改。
 
-## 使用
+| 直接做出修改 | 始终掌握内容 |
+| --- | --- |
+| **在画布上编辑**：双击文字输入，Esc 结束。 | **源码同步定位**：选中元素，下方高亮对应 HTML。 |
+| **用鼠标调整布局**：拖动、缩放、吸附、多选与组合。 | **保存前查看差异**：并排对比原 HTML 与修改结果。 |
+| **整理你的演示**：拖动缩略图排序、新增页面、替换图片。 | **带走你的作品**：导出 HTML、PDF 或 PowerPoint `.pptx`。 |
 
-- 下拉框选择文件，点击打开；左侧选择页面。右上角地球菜单可切换中文、English、日本語，自动记住选择，仅翻译编辑器界面。
-- 单击文字、图片或容器时，下方源码自动展开、滚动并高亮对应 HTML，显示行号；重复文字也按实际元素定位。
-- 源码有未应用的修改时，点击画布不会覆盖输入；先点击「应用源码」或「还原源码」，即可恢复联动。
-- 双击文字编辑（拖动模式下也可编辑）；Esc 结束。保留原本的粗体等嵌套标签时，请在原有文字中修改。
-- 单击元素，用右侧面板调整字体、颜色、宽高、对齐或图片相对路径。
-- 勾选拖动模式后拖动元素；位移用标准 CSS `translate` 保存，原布局结构保留。可先选文字，再选择父容器移动整个组。
-- 支持八方向缩放手柄、拖动吸附和参考线（Alt 暂停吸附、Shift 拖角保持比例）。Shift/Cmd/Ctrl 点击多选，可批量移动和改样式；支持组合、取消组合以及撤销重做。组合会将所在容器固定为当前位置，避免其他元素跳动。
-- 左侧显示实际页面缩略图，支持拖动到两页之间的蓝色插入线排序，也可使用拖动手柄和上下按钮；列表底部「＋ 新页面」沿用普通页模板创建页面，支持撤销。至少保留一页。
-- 图片可通过按钮或拖入画布插入，支持替换、对称边缘裁剪和重置裁剪。新增图片嵌入 HTML，单张上限 8 MB。
-- 图层面板支持选择、上下层、隐藏和锁定；锁定元素不能通过画布或属性控件移动、缩放、修改或删除。
-- 源码加入语法配色。保存前显示原文件和修改后的逐行差异，点击确认后才写入文件。
-- 源码面板可编辑完整 HTML；点击应用源码后生效。源代码排版保留原文件特征，源码面板提供块级标签换行；应用该源码即可保存换行后的结构。
-- 点击保存到原文件，或按 Cmd/Ctrl+S。保存前自动备份到项目根目录 `.slide-editor-backups/时间/原路径`；如外部 AI 改过原文件，编辑器拒绝覆盖。先导出当前内容，再重新打开并整合。
-- 导出 HTML 保留原来的相对资源路径，若移动导出文件，请同时复制 CSS、JS 和 assets。放映打开已保存的原文件。
+## 点击画布，也就找到了源码
 
-## 源码约定和适用范围
+可视化编辑和源码编辑使用同一份文档。点击文本框，源码自动滚动、高亮并显示行号；即使存在重复文字，也能定位到具体元素。你也可以直接改 HTML，再应用到画布。
 
-直接修改 HTML DOM，保留 class 和外部 CSS；具体元素的样式覆盖放在行内 style。无自定义 JSON 存储格式，无画布截图替代源码。保存会经过浏览器标准 HTML 序列化，属性引号、大小写等格式可能规范化；不保证字节级最小差异。
+![选中标题后，源码面板定位并高亮对应标签](docs/images/source-sync.jpg)
 
-编辑画布使用 1280×720 的 16:9 视口，适配本项目。编辑时禁用原始脚本，保存时还原，所以动态生成的内容、JS 图表和特殊交互暂不支持；普通图片和静态 SVG 可显示。默认操作修改 HTML，支持 PDF 和 PPTX 导出，按当前页序输出，包括未保存的画布修改，不覆盖 HTML。每页采用 2560 × 1440 高清画面，PDF 文字不可选择，PPTX 文字暂不可单独编辑；后续修改请继续编辑 HTML。外部图片需要允许 CORS，依赖库已随应用打包。暂不提供外部 CSS 文件编辑、自由裁剪框或旋转控件。保存请求上限为 20 MB，嵌入图片会增加文件体积。复杂变换或旋转布局可能仍需调整源码。复制页后，原文中硬编码的页脚数字需手动修改。
+## 为你的工作方式留出空间
 
-服务只监听本机 127.0.0.1，文件仅在本机处理。原始 slide 在用户点击保存之前不会修改。
+<table>
+<tr>
+<td width="50%" valign="top">
 
-## 网页版与教学示例
+### 图片，直接在画面中调整
 
-首次打开进入根据 Start Bootstrap Landing Page（MIT）改编的五页教学：文字编辑、拖动与缩放、图片替换、多选组合、页面管理与导出。教学内容随界面切换中文、英语和日语；切换时保留你自定义的文字和布局，已保存的练习副本也会更新未修改的教学文字。图片已嵌入 HTML，不依赖 CDN。点击「教学示例」返回练习副本，「重置教学」恢复初始内容。
+选中图片即可缩放、替换和裁剪。用按钮添加图片，或直接拖进画布。
 
-Vercel 网页版通过「导入 HTML / 文件夹」读取本机文件，不会上传到编辑后端。含独立 CSS、图片或字体时，选择完整文件夹；默认优先打开根目录 index.html，否则选择按名称排序的第一个 HTML。其他网页仍须包含 `.slide`，画布为 1280 × 720；不是任意网页转换器。
+[![图片选框、缩放控制点与属性面板](docs/images/image-tools.jpg)](docs/images/image-tools.jpg)
 
-本地 CSS、嵌套 CSS 引用和图片等视觉资源会嵌入导入副本，便于导出单文件 HTML；远程资源仍需联网，PDF/PPTX 中还需要 CORS 支持。原始脚本在编辑时暂停。
+</td>
+<td width="50%" valign="top">
 
-「保存到浏览器」经过差异确认后写入本设备、本站点的 IndexedDB，刷新可恢复最近保存的草稿，不会覆盖电脑上的原文件或跨设备同步。浏览器存储可能被清理，请通过「导出 HTML」备份。导入总大小上限 50 MB，嵌入后的 HTML 上限 30 MB。
+### 更大的画布，熟悉的语言
 
-部署时在 Vercel 导入仓库，选择 Other，根目录为 `./`。仓库中的 vercel.json 已配置 `npm run build` 和输出目录 `web-dist`，无需数据库或环境变量。构建只包含编辑器、依赖和公开教学素材，不包含个人幻灯片、备份或 Mac 应用。
+需要专注时，折叠左侧预览栏。切换中、英、日界面，内置教学也同步切换。
 
-本地预览部署版本：运行 `npm run build`，再运行 `python3 -m http.server 8766 --directory web-dist`。编辑教学源文件 `examples/landing-page/index.html` 后，先运行 `node scripts/build-tutorial.mjs` 生成离线教学页。
+[![日文教学与折叠后的左侧预览栏](docs/images/japanese-focus.jpg)](docs/images/japanese-focus.jpg)
 
-左侧「幻灯片」标题旁的箭头可折叠／展开预览栏，折叠后保留展开按钮，画布使用释放的空间；本设备会记住此状态。
+</td>
+</tr>
+</table>
+
+## 开始使用
+
+### 打开，试一试，再换成你的内容。
+
+1. **[打开在线编辑器](https://html-slide-editor-sepia.vercel.app/)**：无需安装，无需注册。
+2. **体验五页教学**：练习文字、布局、图片、多选组合和导出。切换语言时，保留你自定义的文字和布局。
+3. **导入自己的幻灯片**：选择自带资源的 HTML；若图片和 CSS 是独立文件，就选择完整文件夹。可保存浏览器草稿，也可导出 HTML 备份。
+
+### 选择适合你的工作台
+
+| | 网页版 | Mac App | 本地浏览器 |
+| --- | --- | --- | --- |
+| **如何开始** | [直接打开](https://html-slide-editor-sepia.vercel.app/) | [构建 Mac 应用](desktop/macos/README.md) | 运行下方 Python 服务 |
+| **打开文件** | 导入 HTML 或文件夹 | 原生文件／文件夹选择器 | 项目目录内的幻灯片文件夹 |
+| **保存方式** | 当前浏览器草稿、下载 HTML | 保存本地文件并备份 | 保存本地文件并备份 |
+| **适合场景** | 快速体验、跨平台使用 | 在 Mac 上长期编辑本地文件 | 配合代码编辑器或 AI 工作 |
+
+<details>
+<summary><strong>本地浏览器启动</strong> · Python 3.9+，无需安装额外包</summary>
+
+```sh
+git clone https://github.com/donaldhxp0127/HTML-Slide-Editor.git
+cd HTML-Slide-Editor
+python3 slide-editor/server.py
+```
+
+打开 [127.0.0.1:8765](http://127.0.0.1:8765/)，保持终端运行。Mac 也可双击 `slide-editor/启动编辑器.command`。
+
+将幻灯片文件夹放在 `slide-editor/` 同级，保持 CSS、JS 和图片的相对路径。刷新编辑器后，选择文件并点击「打开」。
+
+</details>
+
+<details>
+<summary><strong>构建 Mac App</strong> · macOS 与 Xcode Command Line Tools</summary>
+
+```sh
+./desktop/macos/build.sh
+```
+
+打开生成的 `dist/Slide Studio.app`，无需 Python、Node.js 或终端。构建适用于当前主机架构，已测试 Apple Silicon。当前采用本地临时签名，未做公开分发所需的开发者签名和公证。详见 [Mac 版说明](desktop/macos/README.md)。
+
+</details>
+
+## 文件始终是你的 HTML
+
+- **普通文件**：保留 HTML 标签和 class，视觉样式覆盖写入标准行内 CSS，没有专有幻灯片格式。浏览器序列化可能规范化部分排版。
+- **本机处理**：网页版在浏览器中处理导入文件，草稿属于当前浏览器和设备；桌面版与本地服务读写本地文件。文稿中引用的远程资源仍可能联网加载。
+- **明确的导出方式**：HTML 可继续编辑；PDF 和 PPTX 以高清页面图片保留外观，文字不能单独编辑，后续修改请继续使用 HTML。
+
+### 请带上一份 HTML 幻灯片
+
+当前支持 **`.slide` 容器、1280 × 720 画布的静态 HTML 幻灯片**，不会自动把任意网页转换成幻灯片。编辑时暂停原始脚本，因此动态内容和交互图表需要静态版本。
+
+浏览器草稿可能被清理，请导出 HTML 做长期备份。远程资源需要联网，图片导出还可能需要 CORS 支持。文件限制、操作细节及部署方式请查看 [完整使用指南](docs/guide.zh-CN.md)。
+
+## 继续探索
+
+| | |
+| --- | --- |
+| [中文使用指南](docs/guide.zh-CN.md) | 操作方式、快捷键、源码联动和文件保存 |
+| [English user guide](docs/guide.md) | 完整英文文档 |
+| [部署到 Vercel](docs/guide.md#deploy-on-vercel) | 静态部署，无需数据库或服务端函数 |
+| [教学示例源码](examples/landing-page/) | 修改教学内容，重新生成离线版本 |
+| [反馈问题](https://github.com/donaldhxp0127/HTML-Slide-Editor/issues) | 提交可复现的问题，或提出改进建议 |
+
+---
+
+<sub>界面截图使用内置教学，改编自 [Start Bootstrap Landing Page](https://github.com/StartBootstrap/startbootstrap-landing-page)，保留其 [MIT 许可](examples/landing-page/LICENSE)。导出依赖及许可见 [第三方说明](slide-editor/vendor/README.md)。</sub>
+
+<div align="center">
+
+**直接调整画面，保留源码自由。**<br>
+[打开 Slide Studio →](https://html-slide-editor-sepia.vercel.app/)
+
+</div>
