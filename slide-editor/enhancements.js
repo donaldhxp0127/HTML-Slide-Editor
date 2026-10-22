@@ -1,5 +1,5 @@
 /* Native HTML editing tools. All canvas controls are transient data-editor-ui nodes. */
-let selectionSet=new Set(), suppressClick=false, pendingSave=null, replacingImage=null;
+let selectionSet=new Set(), suppressClick=false, pendingSave=null, replacingImage=null, selectingForDrag=false;
 const baseSelect=select, baseCheckpoint=checkpoint, baseSyncSource=syncSource;
 const locked=el=>!!el?.closest('[data-slide-locked]');
 const activeSlide=()=>slides()[current];
@@ -27,7 +27,7 @@ select=function(el,additive=false){
   paintSelection();renderLayers();
 };
 checkpoint=function(){baseCheckpoint();let bytes=history.reduce((sum,s)=>sum+s.length,0);while(history.length>2&&bytes>30000000){bytes-=history.shift().length;cursor--;}buttons();paintSelection();renderLayers();updatePageTitle();};
-syncSource=function(reveal=false){baseSyncSource(reveal);paintSource();};
+syncSource=function(reveal=false){baseSyncSource(reveal&&!selectingForDrag);paintSource();};
 function paintSource(){
   const code=$('source').value;
   // Highlight HTML tokens without executing source or injecting its markup.
@@ -128,11 +128,11 @@ wire=function(){
     if(e.target.closest('[data-editor-ui]')||e.target.isContentEditable||!e.target.closest('.slide'))return;
     if(!$('move').checked||e.shiftKey||e.metaKey||e.ctrlKey)return;
     const el=editableTarget(e.target);if(el.classList.contains('slide')||locked(el))return;
-    e.preventDefault();finish();if(!selectionSet.has(el))select(el);
+    e.preventDefault();finish();if(!selectionSet.has(el)){selectingForDrag=true;select(el);selectingForDrag=false;}
     const items=[...selectionSet].filter(n=>!locked(n)&&!n.classList.contains('slide'));
     if(!items.length)return;
     const box=union(items),original=items.map(n=>({el:n,xy:translateXY(n)})),x=e.clientX,y=e.clientY;let moved=false;
-    trackPointer(e,ev=>{if(Math.hypot(ev.clientX-x,ev.clientY-y)<2&&!moved)return;moved=true;suppressClick=true;const delta=snapBox(box,ev.clientX-x,ev.clientY-y,ev.altKey);original.forEach(({el,xy})=>setTranslate(el,xy[0]+delta.dx,xy[1]+delta.dy));paintSelection();},()=>{if(moved)checkpoint();setTimeout(()=>suppressClick=false,0);},()=>{original.forEach(({el,xy})=>setTranslate(el,...xy));suppressClick=false;});
+    trackPointer(e,ev=>{if(Math.hypot(ev.clientX-x,ev.clientY-y)<2&&!moved)return;moved=true;suppressClick=true;const delta=snapBox(box,ev.clientX-x,ev.clientY-y,ev.altKey);original.forEach(({el,xy})=>setTranslate(el,xy[0]+delta.dx,xy[1]+delta.dy));paintSelection();},()=>{if(moved)checkpoint();syncSource(true);setTimeout(()=>suppressClick=false,0);},()=>{original.forEach(({el,xy})=>setTranslate(el,...xy));suppressClick=false;});
   });
   d.addEventListener('dragover',e=>{if([...e.dataTransfer.types].includes('Files'))e.preventDefault();});
   d.addEventListener('drop',e=>{e.preventDefault();const f=e.dataTransfer.files[0];if(f)addImageFile(f,null,{x:e.clientX,y:e.clientY});});
