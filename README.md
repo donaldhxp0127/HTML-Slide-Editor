@@ -2,6 +2,8 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md)
 
+[Open the online editor](https://html-slide-editor-sepia.vercel.app/)
+
 A visual editor for HTML slide decks, available as a local Mac app or a browser-only web edition. Edit text directly on a slide, move elements, adjust styles, and jump to the corresponding HTML source. Saved files remain ordinary HTML that you or an AI coding assistant can continue editing.
 
 The editor UI supports **English, 日本語, and 中文**, available from the globe menu in the top-right corner, with your language preference remembered in the browser. Slide content is not translated.

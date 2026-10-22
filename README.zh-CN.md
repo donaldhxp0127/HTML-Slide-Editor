@@ -2,6 +2,8 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md)
 
+[打开在线编辑器](https://html-slide-editor-sepia.vercel.app/)
+
 为本文件夹已有的 `.slide` HTML 幻灯片制作的本地可视化编辑器，无需安装依赖。
 
 ## Mac 桌面应用
