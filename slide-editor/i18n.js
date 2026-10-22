@@ -65,6 +65,8 @@ Object.assign(translations.en,{'上移页面':'Move slide up','下移页面':'Mo
 Object.assign(translations.ja,{'上移页面':'スライドを上へ','下移页面':'スライドを下へ','调整大小':'サイズ変更'});
 Object.assign(translations.en,{'打开文件 / 文件夹':'Open file / folder'});
 Object.assign(translations.ja,{'打开文件 / 文件夹':'ファイル / フォルダを開く'});
+Object.assign(translations.en,{"导出 PDF": "Export PDF", "导出 PPTX": "Export PPTX", "正在导出": "Exporting", "＋ 新页面": "＋ New slide", "新页面": "New slide", "双击输入内容": "Double-click to add content", "拖动页面": "Drag slide", "导出失败": "Export failed", "导出完成": "Export complete", "已取消导出": "Export cancelled", "导出包含当前未保存的修改，不会覆盖原文件。PPTX 为高清图片页面，文字不能单独编辑。": "Export includes unsaved visual changes without overwriting HTML. PPTX uses high-resolution page images; text is not individually editable.", "资源加载失败，请检查图片和字体链接。": "Resources failed to load. Check image and font links.", "正在生成文件": "Building file"});
+Object.assign(translations.ja,{"导出 PDF": "PDFを書き出す", "导出 PPTX": "PPTXを書き出す", "正在导出": "書き出し中", "＋ 新页面": "＋ 新しいスライド", "新页面": "新しいスライド", "双击输入内容": "ダブルクリックして内容を入力", "拖动页面": "スライドをドラッグ", "导出失败": "書き出しに失敗しました", "导出完成": "書き出し完了", "已取消导出": "書き出しをキャンセルしました", "导出包含当前未保存的修改，不会覆盖原文件。PPTX 为高清图片页面，文字不能单独编辑。": "未保存の変更も書き出します。元のHTMLは変更しません。PPTXの各ページは画像で、文字を個別に編集できません。", "资源加载失败，请检查图片和字体链接。": "画像やフォントのリンクを確認してください。", "正在生成文件": "ファイルを作成中"});
 let language = 'zh-CN';
 try { language = localStorage.getItem('slide-studio-language') || language; } catch {}
 if (!['zh-CN','en','ja'].includes(language)) language = 'zh-CN';

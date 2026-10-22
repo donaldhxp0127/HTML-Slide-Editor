@@ -151,12 +151,11 @@ renderList=function(){
     const base=doc().body;const attrs=[...base.attributes].filter(a=>['class','style'].includes(a.name)).map(a=>`${a.name}="${escapeHTML(a.value)}"`).join(' ');
     iframe.srcdoc=`<!doctype html><html><head>${head.innerHTML}<style>html,body{width:1280px!important;height:720px!important;margin:0!important;overflow:hidden!important}.deck{width:1280px!important;height:720px!important}.slide{display:block!important;position:absolute!important;inset:0!important;width:1280px!important;height:720px!important;transform:none!important;opacity:1!important;visibility:visible!important}</style></head><body ${attrs}><main class="deck">${copy.outerHTML}</main></body></html>`;
     thumb.append(iframe);const label=document.createElement('span');label.className='slide-label';label.textContent=String(i+1).padStart(2,'0')+'  '+(slide.querySelector('h1,h2,h3')?.textContent||t('幻灯片'));button.append(thumb,label);button.onclick=()=>{finish();show(i);};entry.append(button);const order=document.createElement('div');order.className='slide-order';[-1,1].forEach(delta=>{const control=document.createElement('button');control.textContent=delta<0?'↑':'↓';control.setAttribute('aria-label',t(delta<0?'上移页面':'下移页面')+' '+(i+1));control.disabled=i+delta<0||i+delta>=slides().length;control.onclick=()=>moveSlide(i,i+delta);order.append(control);});entry.append(order);
-    entry.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/x-slide-index',String(i));e.dataTransfer.effectAllowed='move';});
-    entry.addEventListener('dragover',e=>{if([...e.dataTransfer.types].includes('text/x-slide-index')){e.preventDefault();entry.classList.add('drop-target');}});
-    entry.addEventListener('dragleave',()=>entry.classList.remove('drop-target'));
-    entry.addEventListener('drop',e=>{e.preventDefault();const raw=e.dataTransfer.getData('text/x-slide-index');if(raw==='')return;moveSlide(Number(raw),i);});list.append(entry);
+    configureSlideDrag(entry,i);list.append(entry);
   });
+  appendSlideTools(list);
 };
+
 function renumber(){slides().forEach((s,i)=>{if(s.hasAttribute('data-slide'))s.dataset.slide=i+1;});}
 function moveSlide(from,to){finish();const all=slides(),moving=all[from],target=all[to];if(!moving||!target||moving===target)return;const active=activeSlide();if(from<to)target.after(moving);else target.before(moving);renumber();show(slides().indexOf(active));checkpoint();}
 $('deleteSlide').onclick=()=>{if(slides().length<=1)return alert(t('请至少保留一页'));finish();activeSlide().remove();renumber();show(current);checkpoint();};
@@ -261,3 +260,61 @@ key=function(e){
 document.removeEventListener('keydown',originalKey);document.addEventListener('keydown',key);
 
 new ResizeObserver(()=>paintSelection()).observe($('stage'));
+
+// Drop boundaries describe gaps (0…N), so a page can be inserted precisely
+// between two previews regardless of its original position.
+let slideDragIndex=null;
+function clearDropIndicator(){document.querySelectorAll('.slide-drop-zone.active').forEach(el=>el.classList.remove('active'));}
+function indicateSlideBoundary(boundary){clearDropIndicator();document.querySelector(`.slide-drop-zone[data-boundary="${boundary}"]`)?.classList.add('active');}
+function insertSlideAt(from,boundary){
+  finish();const pages=slides(),moving=pages[from],active=activeSlide();
+  if(!moving||boundary<0||boundary>pages.length||boundary===from||boundary===from+1)return;
+  if(boundary===pages.length)pages.at(-1).after(moving);else pages[boundary].before(moving);
+  renumber();show(slides().indexOf(active));checkpoint();
+}
+function boundaryAt(clientY){const entries=[...$('slides').querySelectorAll('.slide-entry')];for(let i=0;i<entries.length;i++){const r=entries[i].getBoundingClientRect();if(clientY<r.top+r.height/2)return i;}return entries.length;}
+function configureSlideDrag(entry,index){
+  entry.addEventListener('dragstart',e=>{slideDragIndex=index;e.dataTransfer.setData('text/x-slide-index',String(index));e.dataTransfer.effectAllowed='move';entry.classList.add('dragging');});
+  entry.addEventListener('dragend',()=>{slideDragIndex=null;clearDropIndicator();entry.classList.remove('dragging');});
+  entry.addEventListener('dragover',e=>{if(slideDragIndex===null)return;e.preventDefault();e.stopPropagation();indicateSlideBoundary(boundaryAt(e.clientY));});
+  entry.addEventListener('drop',e=>{if(slideDragIndex===null)return;e.preventDefault();e.stopPropagation();const from=slideDragIndex,boundary=boundaryAt(e.clientY);slideDragIndex=null;clearDropIndicator();insertSlideAt(from,boundary);});
+  // A dedicated pointer handle also works in native WebKit and touch input.
+  const handle=document.createElement('button');handle.className='slide-drag-handle';handle.textContent='⠿';handle.title=t('拖动页面');handle.setAttribute('aria-label',t('拖动页面')+' '+(index+1));
+  handle.addEventListener('pointerdown',e=>{
+    e.preventDefault();e.stopPropagation();entry.draggable=false;const startY=e.clientY;let moved=false,boundary=index;
+    handle.setPointerCapture(e.pointerId);
+    const move=ev=>{if(Math.abs(ev.clientY-startY)<4&&!moved)return;moved=true;entry.classList.add('dragging');boundary=boundaryAt(ev.clientY);indicateSlideBoundary(boundary);const panel=$('slides').closest('aside'),r=panel.getBoundingClientRect();if(ev.clientY<r.top+45)panel.scrollTop-=18;if(ev.clientY>r.bottom-45)panel.scrollTop+=18;};
+    const end=()=>{handle.removeEventListener('pointermove',move);handle.removeEventListener('pointerup',end);handle.removeEventListener('pointercancel',cancel);entry.draggable=true;clearDropIndicator();entry.classList.remove('dragging');if(moved)insertSlideAt(index,boundary);};
+    const cancel=()=>{moved=false;end();};
+    handle.addEventListener('pointermove',move);handle.addEventListener('pointerup',end);handle.addEventListener('pointercancel',cancel);
+  });
+  entry.querySelector('.slide-order').prepend(handle);
+}
+function appendSlideTools(list){
+  const entries=[...list.querySelectorAll('.slide-entry')];
+  for(let boundary=0;boundary<=entries.length;boundary++){
+    const zone=document.createElement('div');zone.className='slide-drop-zone';zone.dataset.boundary=boundary;
+    zone.addEventListener('dragover',e=>{if(slideDragIndex===null)return;e.preventDefault();e.stopPropagation();indicateSlideBoundary(boundary);});
+    zone.addEventListener('drop',e=>{if(slideDragIndex===null)return;e.preventDefault();e.stopPropagation();const from=slideDragIndex;slideDragIndex=null;clearDropIndicator();insertSlideAt(from,boundary);});
+    if(entries[boundary])entries[boundary].before(zone);else list.append(zone);
+  }
+  const add=document.createElement('button');add.id='addSlide';add.className='add-slide';add.textContent=t('＋ 新页面');add.onclick=createSlide;list.append(add);
+}
+function createSlide(){
+  finish();const pages=slides();if(!pages.length)return;
+  const reference=pages.find(page=>!page.classList.contains('cover')&&page.querySelector('.content-box'));
+  let page;
+  if(reference){
+    page=reference.cloneNode(true);page.classList.remove('active');page.removeAttribute('data-editor-page');
+    page.querySelectorAll('.content-box').forEach(box=>{box.replaceChildren();const p=doc().createElement('p');p.textContent=t('双击输入内容');box.append(p);});
+    const heading=page.querySelector('h1,h2,h3');if(heading)heading.textContent=t('新页面');
+    page.querySelectorAll('.speaker-notes').forEach(el=>el.textContent='');
+  }else{
+    page=doc().createElement('section');page.className='slide';
+    const heading=doc().createElement('h2');heading.textContent=t('新页面');heading.style.cssText='position:absolute;left:80px;top:60px;margin:0;font-size:44px';
+    const content=doc().createElement('p');content.textContent=t('双击输入内容');content.style.cssText='position:absolute;left:80px;top:180px;margin:0;font-size:30px';page.append(heading,content);
+  }
+  [page,...page.querySelectorAll('*')].forEach(el=>{el.removeAttribute('id');['data-editor-selected','data-editor-editing','contenteditable','data-slide-locked','data-slide-group'].forEach(attr=>el.removeAttribute(attr));});
+  page.querySelectorAll('[data-editor-ui]').forEach(el=>el.remove());page.querySelectorAll('footer span').forEach(span=>span.textContent=String(pages.length+1));
+  pages.at(-1).after(page);renumber();show(slides().length-1);checkpoint();requestAnimationFrame(()=>$('addSlide')?.scrollIntoView({block:'nearest'}));
+}

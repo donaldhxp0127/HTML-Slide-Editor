@@ -3,6 +3,7 @@ import WebKit
 import Network
 import CryptoKit
 import UniformTypeIdentifiers
+import PDFKit
 
 // The native host serves bundled editor assets and the user-selected deck folder.
 // No Python, Node.js, or third-party runtime is required by the packaged app.
@@ -135,6 +136,48 @@ final class LocalServer {
     }
 }
 
+// WebKit's native PDF renderer avoids canvas-clone stalls in hidden subframes.
+final class SlideCaptureRenderer: NSObject, WKNavigationDelegate {
+    private var view: WKWebView!
+    private var completion: ((Result<String,Error>)->Void)?
+    private var timer: Timer?
+    func capture(html:String, completion:@escaping(Result<String,Error>)->Void) {
+        self.completion=completion
+        let config=WKWebViewConfiguration()
+        view=WKWebView(frame:NSRect(x:0,y:0,width:1280,height:720),configuration:config)
+        view.navigationDelegate=self
+        timer=Timer.scheduledTimer(withTimeInterval:45,repeats:false) { [weak self] _ in self?.finish(.failure(NSError(domain:"SlideStudio",code:1,userInfo:[NSLocalizedDescriptionKey:"Page rendering timed out."]))) }
+        view.loadHTMLString(html,baseURL:nil)
+    }
+    private func finish(_ result:Result<String,Error>) {
+        guard let completion=completion else { return };self.completion=nil;timer?.invalidate();view?.stopLoading();completion(result);view=nil
+    }
+    func webView(_ webView:WKWebView,didFail navigation:WKNavigation!,withError error:Error) { finish(.failure(error)) }
+    func webView(_ webView:WKWebView,didFailProvisionalNavigation navigation:WKNavigation!,withError error:Error) { finish(.failure(error)) }
+    func webView(_ webView:WKWebView,didFinish navigation:WKNavigation!) {
+        let wait="await document.fonts.ready;await Promise.all(Array.from(document.images).filter(img=>!img.closest('[hidden]')).map(img=>img.decode()));return true;"
+        webView.callAsyncJavaScript(wait,arguments:[:],in:nil,in:.page) { [weak self] result in
+            guard let self=self,self.completion != nil else { return }
+            if case .failure(let error)=result { self.finish(.failure(error));return }
+            let config=WKPDFConfiguration();config.rect=CGRect(x:0,y:0,width:1280,height:720)
+            webView.createPDF(configuration:config) { [weak self] result in
+                guard let self=self,self.completion != nil else { return }
+                do {
+                    let data=try result.get()
+                    guard let page=PDFDocument(data:data)?.page(at:0) else { throw NSError(domain:"SlideStudio",code:2,userInfo:[NSLocalizedDescriptionKey:"Unable to render slide."]) }
+                    let thumbnail=page.thumbnail(of:NSSize(width:2560,height:1440),for:.mediaBox)
+                    let rep=NSBitmapImageRep(bitmapDataPlanes:nil,pixelsWide:2560,pixelsHigh:1440,bitsPerSample:8,samplesPerPixel:4,hasAlpha:true,isPlanar:false,colorSpaceName:.deviceRGB,bytesPerRow:0,bitsPerPixel:0)!
+                    NSGraphicsContext.saveGraphicsState();NSGraphicsContext.current=NSGraphicsContext(bitmapImageRep:rep)
+                    NSColor.white.setFill();NSRect(x:0,y:0,width:2560,height:1440).fill();thumbnail.draw(in:NSRect(x:0,y:0,width:2560,height:1440))
+                    NSGraphicsContext.restoreGraphicsState()
+                    guard let png=rep.representation(using:.png,properties:[:]) else { throw NSError(domain:"SlideStudio",code:3) }
+                    self.finish(.success("data:image/png;base64,"+png.base64EncodedString()))
+                }catch { self.finish(.failure(error)) }
+            }
+        }
+    }
+}
+
 final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler, WKDownloadDelegate {
     var window: NSWindow!
     var webView: WKWebView!
@@ -143,6 +186,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNa
     var allowedClose = false
     var presentationWindows: [NSWindow] = []
     var initialFile: String?
+    var captureRenderers:[String:SlideCaptureRenderer]=[:]
     let title = "Slide Studio"
     func applicationDidFinishLaunching(_ notification: Notification) {
         buildMenu()
@@ -187,7 +231,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNa
         viewMenu.addItem(withTitle:"Reload Editor",action:#selector(reload),keyEquivalent:"r")
         view.submenu=viewMenu;menu.addItem(view);NSApp.mainMenu=menu
     }
-    @objc func about() { NSApp.orderFrontStandardAboutPanel(options:[.applicationName:title,.applicationVersion:"1.0.0",.credits:NSAttributedString(string:"Local visual HTML slide editor\nEnglish · 日本語 · 中文")]) }
+    @objc func about() { NSApp.orderFrontStandardAboutPanel(options:[.applicationName:title,.applicationVersion:Bundle.main.object(forInfoDictionaryKey:"CFBundleShortVersionString") as? String ?? "1.1.0",.credits:NSAttributedString(string:"Local visual HTML slide editor\nEnglish · 日本語 · 中文")]) }
     @objc func editorUndo() { historyAction("undo") }
     @objc func editorRedo() { historyAction("redo") }
     func historyAction(_ action:String) {
@@ -232,6 +276,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNa
         guard message.frameInfo.isMainFrame, message.webView === webView, let url=message.frameInfo.request.url, url.host=="127.0.0.1", url.port==Int(server.port) else { return }
         guard let payload=message.body as? [String:String] else { return }
         if payload["action"]=="openFolder" { chooseFolder(nil) }
+        if payload["action"]=="captureSlide",let html=payload["html"],let id=payload["id"],html.utf8.count<=20_000_000,captureRenderers.count<2 {
+            let renderer=SlideCaptureRenderer();captureRenderers[id]=renderer
+            renderer.capture(html:html) { [weak self] result in
+                guard let self=self else { return };self.captureRenderers.removeValue(forKey:id)
+                let response:[String:String]
+                switch result { case .success(let data):response=["id":id,"data":data];case .failure(let error):response=["id":id,"error":error.localizedDescription] }
+                if let json=try? JSONSerialization.data(withJSONObject:response),let text=String(data:json,encoding:.utf8) { self.webView.evaluateJavaScript("window.slideStudioCaptureResult?.(\(text));") }
+            }
+        }
         if payload["action"]=="setLanguage", let language=payload["language"], ["zh-CN","en","ja"].contains(language) { UserDefaults.standard.set(language,forKey:"language") }
     }
     func webView(_ webView:WKWebView,didFinish navigation:WKNavigation!) {

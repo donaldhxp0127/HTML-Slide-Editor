@@ -61,13 +61,14 @@ After adding files, refresh the editor, select a deck from the dropdown, and cli
 - **Resize and align:** drag any of the eight selection handles. Hold `Shift` on a corner to retain the aspect ratio. In Drag mode, elements snap to slide edges, the center, and common content edges; pink guides show alignment. Hold `Alt` to bypass snapping.
 - **Adjust styles:** change font size, text/background color, alignment, width, height, or image path in the inspector.
 - **Move:** enable **Drag mode**, then drag an element. Use **Select parent** to move a containing group. Movement is saved as standard CSS `translate`.
-- **Manage slides:** real slide thumbnails appear in the sidebar. Drag thumbnails to reorder them, or use their up/down buttons. Duplicate and delete pages with the toolbar; at least one page is retained. Hardcoded footer numbers must still be updated manually.
+- **Manage slides:** real slide thumbnails appear in the sidebar. Drag a thumbnail or its grip to a blue insertion line between pages, or use the up/down buttons. Use **＋ New slide** at the end of the sidebar to create a page matching the deck’s normal slide template. Duplicate and delete pages with the toolbar; at least one page is retained. Hardcoded footer numbers must still be updated manually.
 - **Work with multiple elements:** Shift/Cmd/Ctrl-click to select multiple elements, then move or style them together. Group elements from the same container using **Group** (`Cmd/Ctrl+G`), and ungroup with `Cmd/Ctrl+Shift+G`. Grouping fixes the affected container’s current geometry to prevent flow-layout siblings from shifting.
 - **Manage layers:** select elements from the Layers list, bring them forward/backward, hide/show them, or lock/unlock them. Locked elements cannot be moved, resized, restyled, or deleted through visual controls. Grouping is blocked if the affected container has locked siblings. Lock state is saved in a standard `data-slide-locked` attribute.
 - **Add images:** use **＋ Image** or drop an image onto the canvas. Replace a selected image, crop it with the inset slider, or reset cropping. New images are embedded as data URLs (maximum 8 MB per image), so exporting does not require copying new image files. Existing image paths remain intact.
 - **Keyboard controls:** Delete/Backspace removes unlocked selected elements; arrow keys move them by 1 px, or 10 px with Shift. Undo and redo include resizing, grouping, image operations, and slide management.
 - **Save:** click **Save file** or press `Cmd/Ctrl+S`. A side-by-side line diff shows the original and edited HTML before you confirm saving. Cancel returns to editing. Each confirmed save backs up the previous file under `.slide-editor-backups/`. If another editor or AI has changed the original file, saving is blocked to prevent overwriting those changes.
 - **Export:** download the edited HTML. Relative paths are retained, so keep exported HTML with the matching CSS, JavaScript, and assets.
+- **Export PDF / PPTX:** export the current page order, including unsaved visual edits, as a 16:9 PDF or PowerPoint `.pptx`. Each page uses a 2560 × 1440 image to preserve its appearance. PDF text is rasterized, and PPTX text is not individually editable; continue editing in HTML. Exports include speaker notes in PPTX when available. Generation runs locally (native WebKit capture on macOS, bundled canvas capture in browsers), has progress/cancellation, and never overwrites your HTML. External images must allow CORS access.
 - **Present:** open the saved deck in a new tab. Save edits before presenting.
 
 ## Source and visual editing together
@@ -86,7 +87,7 @@ The source panel includes HTML syntax coloring, and its selection highlight stay
 
 ## Current limitations
 
-- No PPTX export, free-form image crop box, or arbitrary element rotation controls. Image cropping currently applies a symmetric percentage inset.
+- PPTX currently exports high-resolution page images rather than editable PowerPoint objects. PDF text is not selectable. Free-form image crop boxes and arbitrary rotation controls are not available. Image cropping currently applies a symmetric percentage inset.
 - Grouping converts the affected container to explicit positions; undo restores its previous layout. Complex transformed/rotated layouts may require source adjustments.
 - The editor accepts save requests up to 20 MB. Embedded images increase HTML size. Large documents use a simpler diff, and undo history is capped to limit memory usage.
 - Original scripts are disabled in the editing canvas and restored on save/export. Script-generated content, dynamic charts, and custom interactions are not supported in the canvas. Static images and SVG can be displayed.
@@ -106,6 +107,8 @@ The server binds to `127.0.0.1`; edit and save requests are handled locally. Dec
 | `slide-editor/editor.js` | Visual editing, source mapping, undo/redo, and serialization |
 | `slide-editor/enhancements.js` | Resize/snap tools, thumbnails, images, layers, groups, source coloring, and save review |
 | `desktop/macos/SlideStudio.swift` | Native Mac window, bundled local service, file picker, downloads, and app lifecycle |
+| `slide-editor/exports.js` | Local PDF/PPTX capture and file generation |
+| `slide-editor/vendor/` | Pinned export libraries and license notices |
 | `slide-editor/desktop.js` | Optional integration with the Mac host |
 | `slide-editor/i18n.js` | Chinese, English, and Japanese UI translations |
 | `slide-editor/editor.css` | Editor layout and responsive styles |
@@ -116,4 +119,5 @@ For JavaScript syntax checks during development:
 node --check slide-editor/editor.js
 node --check slide-editor/i18n.js
 node --check slide-editor/enhancements.js
+node --check slide-editor/exports.js
 ```

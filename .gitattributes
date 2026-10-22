@@ -1,0 +1,3 @@
+# Preserve upstream browser bundles, including their license comment formatting.
+slide-editor/vendor/** linguist-vendored
+slide-editor/vendor/*.js -whitespace

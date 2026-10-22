@@ -9,6 +9,8 @@ A native AppKit/WebKit desktop app that bundles the HTML editor and its local fi
 3. Choose an HTML deck or its containing folder when prompted. Use **Open file / folder** or `Cmd+O` to switch workspaces later.
 4. Edit and save as usual. Save review, backups, and external-change checks are retained.
 
+PDF and PPTX export are available from the header. Exports preserve slide appearance as high-resolution page images; PowerPoint text is not individually editable. macOS uses WebKit’s native PDF renderer for reliable page capture. The sidebar supports drop-between-page reordering and a bottom **＋ New slide** button.
+
 The last selected folder is remembered. Backups stay in that folder under `.slide-editor-backups`. The app listens only on loopback and chooses a free port. Quitting the app stops its service. Unsaved changes are checked when closing, quitting, reloading, or switching folders.
 
 The web editor UI supports English, Japanese, and Chinese. Native macOS menus and host dialogs currently use English.
