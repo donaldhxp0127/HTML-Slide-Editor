@@ -174,3 +174,12 @@ function applyLanguage() {
   $('language').value=language;
   $('language').dispatchEvent(new Event('change'));
 }
+
+Object.assign(translations.en,{
+  "PPTX 中的文字、图片和基础形状可单独编辑。复杂特效保留为图片；字体和换行可能略有差异。":"Text, images and basic shapes are editable in PowerPoint. Complex effects remain images; fonts and line breaks may vary slightly.",
+  "PDF 导出包含未保存的修改，以高清页面图片保留外观，不会覆盖原文件。":"PDF includes unsaved changes as high-resolution page images, without overwriting the original HTML."
+});
+Object.assign(translations.ja,{
+  "PPTX 中的文字、图片和基础形状可单独编辑。复杂特效保留为图片；字体和换行可能略有差异。":"PPTXの文字・画像・基本図形は個別に編集できます。複雑な効果は画像になり、フォントや改行が多少変わる場合があります。",
+  "PDF 导出包含未保存的修改，以高清页面图片保留外观，不会覆盖原文件。":"未保存の変更を含め、高解像度のページ画像としてPDFに書き出します。元のHTMLは上書きしません。"
+});

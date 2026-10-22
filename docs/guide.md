@@ -97,7 +97,7 @@ After adding files, refresh the editor, select a deck from the dropdown, and cli
 - **Keyboard controls:** Delete/Backspace removes unlocked selected elements; arrow keys move them by 1 px, or 10 px with Shift. Undo and redo include resizing, grouping, image operations, and slide management.
 - **Save:** click **Save file** or press `Cmd/Ctrl+S`. A side-by-side line diff shows the original and edited HTML before you confirm saving. Cancel returns to editing. Each confirmed save backs up the previous file under `.slide-editor-backups/`. If another editor or AI has changed the original file, saving is blocked to prevent overwriting those changes.
 - **Export:** download the edited HTML. Relative paths are retained, so keep exported HTML with the matching CSS, JavaScript, and assets.
-- **Export PDF / PPTX:** export the current page order, including unsaved visual edits, as a 16:9 PDF or PowerPoint `.pptx`. Each page uses a 2560 × 1440 image to preserve its appearance. PDF text is rasterized, and PPTX text is not individually editable; continue editing in HTML. Exports include speaker notes in PPTX when available. Generation runs locally (native WebKit capture on macOS, bundled canvas capture in browsers), has progress/cancellation, and never overwrites your HTML. External images must allow CORS access.
+- **Export PDF / PPTX:** export the current page order, including unsaved visual edits, as a 16:9 PDF or PowerPoint `.pptx`. PDF uses a 2560 × 1440 image per page to preserve appearance; its text is rasterized. PPTX exports browser-measured native text boxes, independent pictures and basic shapes. Inline text styles are retained and wrapped paragraphs are split into editable line boxes to preserve positioning. Background gradients, shadows and decorative surfaces may be images with editable text on top; SVG, transformed groups, clipped containers and other complex effects may be rasterized as a whole. Fonts and text metrics can differ in PowerPoint. Exports include speaker notes in PPTX when available. Generation runs locally (native WebKit capture for macOS PDF; DOM-to-PowerPoint conversion and bundled canvas capture for PPTX), has progress/cancellation, and never overwrites your HTML. External images must allow CORS access.
 - **Present:** open the saved deck in a new tab. Save edits before presenting.
 
 ## Source and visual editing together
@@ -116,7 +116,7 @@ The source panel includes HTML syntax coloring, and its selection highlight stay
 
 ## Current limitations
 
-- PPTX currently exports high-resolution page images rather than editable PowerPoint objects. PDF text is not selectable. Free-form image crop boxes and arbitrary rotation controls are not available. Image cropping currently applies a symmetric percentage inset.
+- PPTX supports native text, pictures and basic shapes, but does not turn SVG/chart artwork into native editable chart data. Complex effects can remain images, and wrapped text uses one box per displayed line. PDF text is not selectable. Free-form image crop boxes and arbitrary rotation controls are not available. Image cropping currently applies a symmetric percentage inset.
 - Grouping converts the affected container to explicit positions; undo restores its previous layout. Complex transformed/rotated layouts may require source adjustments.
 - The editor accepts save requests up to 20 MB. Embedded images increase HTML size. Large documents use a simpler diff, and undo history is capped to limit memory usage.
 - Original scripts are disabled in the editing canvas and restored on save/export. Script-generated content, dynamic charts, and custom interactions are not supported in the canvas. Static images and SVG can be displayed.
@@ -136,7 +136,7 @@ The server binds to `127.0.0.1`; edit and save requests are handled locally. Dec
 | `slide-editor/editor.js` | Visual editing, source mapping, undo/redo, and serialization |
 | `slide-editor/enhancements.js` | Resize/snap tools, thumbnails, images, layers, groups, source coloring, and save review |
 | `desktop/macos/SlideStudio.swift` | Native Mac window, bundled local service, file picker, downloads, and app lifecycle |
-| `slide-editor/exports.js` | Local PDF/PPTX capture and file generation |
+| `slide-editor/exports.js` | Export orchestration, PDF capture and file generation |
 | `slide-editor/vendor/` | Pinned export libraries and license notices |
 | `slide-editor/desktop.js` | Optional integration with the Mac host |
 | `slide-editor/i18n.js` | Chinese, English, and Japanese UI translations |

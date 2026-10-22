@@ -12,7 +12,7 @@ function downloadBlob(blob,filename){
   const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=filename;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
 }
 function exportCheck(){if(exportCancelled)throw Error('EXPORT_CANCELLED');}
-async function captureSlides(consume){
+async function captureSlides(consume,{raster=true}={}){
   const html=clean(),parsed=new DOMParser().parseFromString(html,'text/html');
   parsed.querySelectorAll('script,base').forEach(el=>el.remove());
   const base=parsed.createElement('base');base.href=deckBaseURL();parsed.head.prepend(base);
@@ -50,6 +50,10 @@ async function captureSlides(consume){
       });
       $('exportStatus').textContent=`${i+1} / ${pageList.length}`;
       await new Promise(resolve=>setTimeout(resolve,40));
+      if(!raster){
+        await consume(page,i,page.querySelector('.speaker-notes')?.textContent||'');
+        $('exportProgress').value=i+1;continue;
+      }
       let canvas;
       if(window.captureSlideNative){
         const data=await window.captureSlideNative('<!doctype html>'+d.documentElement.outerHTML);
@@ -67,10 +71,10 @@ async function exportDeck(format){
   if(!path||!slides().length)return;
   if(sourceDraft)return alert(t('源码有待应用的修改，应用或还原后即可定位元素。'));
   finish();exportCancelled=false;
-  $('exportDescription').textContent=t('导出包含当前未保存的修改，不会覆盖原文件。PPTX 为高清图片页面，文字不能单独编辑。');
+  $('exportDescription').textContent=t(format==='pptx'?'PPTX 中的文字、图片和基础形状可单独编辑。复杂特效保留为图片；字体和换行可能略有差异。':'PDF 导出包含未保存的修改，以高清页面图片保留外观，不会覆盖原文件。');
   $('exportProgress').value=0;$('exportStatus').textContent='';$('exportDialog').showModal();
   try{
-    if(!window.captureSlideNative)await loadExportLibrary('html2canvas.min.js');exportCheck();
+    if(format==='pptx'||!window.captureSlideNative)await loadExportLibrary('html2canvas.min.js');exportCheck();
     const name=path==='@tutorial'?'landing-page-tutorial':path.split('/').pop().replace(/\.html?$/i,'');
     if(format==='pdf'){
       await loadExportLibrary('jspdf.umd.min.js');exportCheck();
@@ -80,7 +84,25 @@ async function exportDeck(format){
     }else{
       await loadExportLibrary('pptxgen.bundle.js');exportCheck();
       const pptx=new PptxGenJS();pptx.layout='LAYOUT_WIDE';pptx.author='Slide Studio';pptx.subject='HTML slide export';pptx.title=doc().title||name;pptx.lang=doc().documentElement.lang||'en-US';
-      await captureSlides((canvas,i,notes)=>{const slide=pptx.addSlide();slide.addImage({data:canvas.toDataURL('image/png'),x:0,y:0,w:13.333333,h:7.5});if(notes.trim())slide.addNotes(notes);});
+      await captureSlides(async(page,i,notes)=>{
+        const slide=pptx.addSlide();
+        const objects=await SlideStudioPptx.collect(page,{check:exportCheck,rasterize:async(el,mode)=>{
+          exportCheck();const marker='pptx-'+crypto.randomUUID();el.setAttribute('data-pptx-capture',marker);
+          let canvas;
+          try{
+            canvas=await html2canvas(el,{scale:2,backgroundColor:null,useCORS:true,allowTaint:false,logging:false,windowWidth:1280,windowHeight:720,scrollX:0,scrollY:0,onclone:cloned=>{
+              cloned.querySelectorAll('[data-editor-ui]').forEach(node=>node.remove());
+              if(mode==='surface'){
+                const target=cloned.querySelector('[data-pptx-capture="'+marker+'"]');
+                target.style.setProperty('color','transparent','important');target.style.setProperty('text-shadow','none','important');
+                [...target.children].forEach(child=>child.style.setProperty('visibility','hidden','important'));
+              }
+            }});
+            return canvas.toDataURL('image/png');
+          }finally{el.removeAttribute('data-pptx-capture');if(canvas){canvas.width=1;canvas.height=1;}}
+        }});
+        SlideStudioPptx.addObjects(slide,objects,pptx);if(notes.trim())slide.addNotes(notes);
+      },{raster:false});
       $('exportStatus').textContent=t('正在生成文件');const blob=await pptx.write({outputType:'blob'});exportCheck();downloadBlob(blob,name+'.pptx');
     }
     status('导出完成');

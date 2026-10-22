@@ -107,7 +107,7 @@ Open `dist/Slide Studio.app`. The packaged app needs no Python, Node.js, or term
 
 - **Ordinary files.** Keep HTML tags and classes; visual style overrides use standard inline CSS. There is no proprietary slide format. Browser serialization may normalize formatting.
 - **Files stay local to your editor.** The hosted version processes imports in your browser; its draft storage belongs to that browser and device. The desktop and local-server versions edit local files. Decks may still load remote resources they reference.
-- **A clear export path.** HTML stays editable. PDF and PPTX preserve appearance as high-resolution page images; their text is not individually editable. Continue making changes in the HTML.
+- **A clear export path.** HTML stays editable. PPTX exports native text, independent pictures and basic shapes for further editing in PowerPoint. Complex effects remain images; fonts may vary and wrapped text is split into editable line boxes. PDF preserves appearance as high-resolution page images.
 
 ### Bring an HTML slide deck
 

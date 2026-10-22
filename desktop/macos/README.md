@@ -9,7 +9,7 @@ A native AppKit/WebKit desktop app that bundles the HTML editor and its local fi
 3. First launch opens the bundled five-slide Landing Page tutorial. Use **Open file / folder** or `Cmd+O` to choose your own HTML deck or its containing folder.
 4. Edit and save as usual. Save review, backups, and external-change checks are retained.
 
-PDF and PPTX export are available from the header. Exports preserve slide appearance as high-resolution page images; PowerPoint text is not individually editable. macOS uses WebKit’s native PDF renderer for reliable page capture. The sidebar supports drop-between-page reordering and a bottom **＋ New slide** button.
+PDF and PPTX export are available from the header. PPTX exports native editable text, independent pictures and basic shapes. Wrapped text is split into line boxes to preserve browser layout; complex effects (including SVG and transformed groups) remain images, and fonts may vary between machines. PDF uses high-resolution page images and WebKit’s native PDF renderer for reliable page capture. The sidebar supports drop-between-page reordering and a bottom **＋ New slide** button.
 
 The last selected folder is remembered. Backups stay in that folder under `.slide-editor-backups`. The app listens only on loopback and chooses a free port. Quitting the app stops its service. Unsaved changes are checked when closing, quitting, reloading, or switching folders.
 

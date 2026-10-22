@@ -39,7 +39,7 @@ window.slideStudioTutorialCopy = [
   ['<span class="export-number">01</span>拖动左侧缩略图下的 ⠿，调整页面顺序。', '<span class="export-number">01</span>Drag the ⠿ grip below a thumbnail to reorder slides.', '<span class="export-number">01</span>左のサムネイル下の ⠿ をドラッグして順番を変更。'],
   ['<span class="export-number">02</span>点击左侧最下方「＋ 新页面」，再添加文字。', '<span class="export-number">02</span>Choose ＋ New slide at the bottom, then add text.', '<span class="export-number">02</span>左下の「＋ 新しいスライド」でページを追加し、文字を入れます。'],
   ['<span class="export-number">03</span>导出 HTML、PDF 或 PPTX，带走你的作品。', '<span class="export-number">03</span>Export HTML, PDF or PPTX to take your work with you.', '<span class="export-number">03</span>HTML、PDF、PPTXに書き出して保存しましょう。'],
-  ['HTML 可继续编辑；PDF / PPTX 使用高清页面图片。网页草稿保存在此浏览器，请导出备份。', 'Keep editing the HTML. PDF / PPTX use page images. Drafts stay in this browser; export a backup.', 'HTMLは引き続き編集できます。PDF / PPTXはページ画像です。下書きはこのブラウザに保存されるため、書き出してバックアップしましょう。'],
+  ['HTML 和 PPTX 可继续编辑；PDF 保留页面外观。网页草稿保存在此浏览器，请导出备份。', 'Keep editing in HTML or PowerPoint. PDF preserves the page appearance. Drafts stay in this browser; export a backup.', 'HTMLとPPTXは引き続き編集できます。PDFはページの見た目を保ちます。下書きはこのブラウザに保存されるため、書き出してバックアップしましょう。'],
   ['原模板：startbootstrap.com/theme/landing-page · MIT', 'Original template: startbootstrap.com/theme/landing-page · MIT', '元のテンプレート：startbootstrap.com/theme/landing-page · MIT'],
   ['蓝色海面', 'Blue ocean', '青い海'],
   ['Start Bootstrap 模板中的手机照片', 'Phone photo from the Start Bootstrap template', 'Start Bootstrapのサンプルのスマートフォン写真'],

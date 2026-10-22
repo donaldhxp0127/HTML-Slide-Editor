@@ -8,7 +8,7 @@ mkdir -p "$OUTPUT" "$CACHE" "$APP/Contents/MacOS" "$APP/Contents/Resources/edito
 TARGET_ARCH="$(uname -m)"
 xcrun swiftc -O -target "$TARGET_ARCH-apple-macos12.0" -module-cache-path "$CACHE" "$PROJECT_ROOT/desktop/macos/SlideStudio.swift" -o "$APP/Contents/MacOS/SlideStudio"
 cp "$PROJECT_ROOT/desktop/macos/Info.plist" "$APP/Contents/Info.plist"
-for file in index.html editor.css editor.js i18n.js enhancements.js desktop.js exports.js browser-storage.js import-html.js tutorial-language.js tutorial.html; do
+for file in index.html editor.css editor.js i18n.js enhancements.js desktop.js exports.js pptx-editable.js browser-storage.js import-html.js tutorial-language.js tutorial.html; do
   cp "$PROJECT_ROOT/slide-editor/$file" "$APP/Contents/Resources/editor/$file"
 done
 mkdir -p "$APP/Contents/Resources/editor/vendor"

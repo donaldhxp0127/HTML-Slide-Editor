@@ -12,7 +12,7 @@ test('static deploy ships only the editor, vendored libraries and public tutoria
   const top=await readdir(path.join(root,'web-dist'));
   assert.deepEqual(top.sort(),['index.html','slide-editor']);
   const assets=await readdir(path.join(root,'web-dist/slide-editor'));
-  assert.deepEqual(assets.sort(),['TUTORIAL-LICENSE.txt','browser-storage.js','desktop.js','editor.css','editor.js','enhancements.js','exports.js','i18n.js','import-html.js','index.html','tutorial-language.js','tutorial.html','vendor'].sort());
+  assert.deepEqual(assets.sort(),['TUTORIAL-LICENSE.txt','browser-storage.js','desktop.js','editor.css','editor.js','enhancements.js','exports.js','pptx-editable.js','i18n.js','import-html.js','index.html','tutorial-language.js','tutorial.html','vendor'].sort());
   const html=await readFile(path.join(root,'web-dist/index.html'),'utf8');
   assert.match(html,/name="slide-studio-mode" content="web"/);
   const local=await readFile(path.join(root,'slide-editor/index.html'),'utf8');
