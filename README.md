@@ -57,10 +57,10 @@ After adding files, refresh the editor, select a deck from the dropdown, and cli
 ## Editing
 
 - **Select:** click text, an image, or a container. On narrow windows, use **Properties** to show the inspector.
-- **Edit text:** double-click text and type. Press `Esc` to finish. Edit within existing styled text to retain nested formatting.
+- **Edit text:** double-click text and type, including while Drag mode is enabled. Press `Esc` to finish. Edit within existing styled text to retain nested formatting.
 - **Resize and align:** drag any of the eight selection handles. Hold `Shift` on a corner to retain the aspect ratio. In Drag mode, elements snap to slide edges, the center, and common content edges; pink guides show alignment. Hold `Alt` to bypass snapping.
 - **Adjust styles:** change font size, text/background color, alignment, width, height, or image path in the inspector.
-- **Move:** enable **Drag mode**, then drag an element. Use **Select parent** to move a containing group. Movement is saved as standard CSS `translate`.
+- **Move:** drag an element with **Drag mode** (enabled by default). Use **Select parent** to move a containing group. Movement is saved as standard CSS `translate`.
 - **Manage slides:** real slide thumbnails appear in the sidebar. Drag a thumbnail or its grip to a blue insertion line between pages, or use the up/down buttons. Use **＋ New slide** at the end of the sidebar to create a page matching the deck’s normal slide template. Duplicate and delete pages with the toolbar; at least one page is retained. Hardcoded footer numbers must still be updated manually.
 - **Work with multiple elements:** Shift/Cmd/Ctrl-click to select multiple elements, then move or style them together. Group elements from the same container using **Group** (`Cmd/Ctrl+G`), and ungroup with `Cmd/Ctrl+Shift+G`. Grouping fixes the affected container’s current geometry to prevent flow-layout siblings from shifting.
 - **Manage layers:** select elements from the Layers list, bring them forward/backward, hide/show them, or lock/unlock them. Locked elements cannot be moved, resized, restyled, or deleted through visual controls. Grouping is blocked if the affected container has locked siblings. Lock state is saved in a standard `data-slide-locked` attribute.

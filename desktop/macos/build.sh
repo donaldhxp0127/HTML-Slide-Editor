@@ -1,7 +1,7 @@
 #!/bin/zsh
 set -euo pipefail
 PROJECT_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-OUTPUT="$PROJECT_ROOT/dist"
+OUTPUT="${SLIDE_STUDIO_OUTPUT_DIR:-$PROJECT_ROOT/dist}"
 APP="$OUTPUT/Slide Studio.app"
 CACHE="${TMPDIR:-/tmp}/slide-studio-swift-cache"
 mkdir -p "$OUTPUT" "$CACHE" "$APP/Contents/MacOS" "$APP/Contents/Resources/editor"
