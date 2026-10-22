@@ -271,7 +271,7 @@ $('cancelSave').onclick=()=>{$('saveDialog').close();pendingSave=null;};
 $('saveDialog').addEventListener('cancel',()=>pendingSave=null);
 $('confirmSave').onclick=async()=>{
   if(!pendingSave)return;$('confirmSave').disabled=true;
-  try{const request=pendingSave;const r=await api('save',request);version=r.version;savedHTML=request.html;dirty=clean()!==savedHTML;status(dirty?'有未保存的修改':'已保存 · 已自动备份');$('saveDialog').close();pendingSave=null;}catch(e){alert(t(e.message));}finally{$('confirmSave').disabled=false;}
+  try{const request=pendingSave;const r=await api('save',request);version=r.version;savedHTML=request.html;dirty=clean()!==savedHTML;status(dirty?'有未保存的修改':r.statusKey||'已保存 · 已自动备份');$('saveDialog').close();pendingSave=null;}catch(e){alert(t(e.message));}finally{$('confirmSave').disabled=false;}
 };
 const originalKey=key;
 key=function(e){

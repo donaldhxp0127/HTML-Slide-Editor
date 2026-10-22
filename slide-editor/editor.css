@@ -21,3 +21,4 @@ header{position:relative;padding-right:82px}
 #languageMenu button[aria-checked=true]{color:#365bd5;background:#edf2ff}
 #languageMenu button[aria-checked=true]::after{content:"✓";margin-left:20px}
 @media(max-width:800px){header{padding-right:66px}.language-switcher{right:12px;top:12px}#language{min-width:0;max-width:none}}
+#importDialog{width:min(650px,92vw)}#importDialog p{line-height:1.8;color:#66758c}#importStatus{color:#b34a32!important;overflow-wrap:anywhere}#tutorial{white-space:nowrap}#resetTutorial{font-size:11px;color:#6d7d99}

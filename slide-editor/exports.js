@@ -15,7 +15,7 @@ function exportCheck(){if(exportCancelled)throw Error('EXPORT_CANCELLED');}
 async function captureSlides(consume){
   const html=clean(),parsed=new DOMParser().parseFromString(html,'text/html');
   parsed.querySelectorAll('script,base').forEach(el=>el.remove());
-  const base=parsed.createElement('base');base.href=new URL('/'+path.split('/').map(encodeURIComponent).join('/'),location.origin).href;parsed.head.prepend(base);
+  const base=parsed.createElement('base');base.href=deckBaseURL();parsed.head.prepend(base);
   const style=parsed.createElement('style');style.textContent=`html,body{width:1280px!important;height:720px!important;margin:0!important;overflow:hidden!important}.deck{width:1280px!important;height:720px!important;transform:none!important}.slide{display:none!important}.slide[data-export-active]{display:block!important;position:absolute!important;inset:0!important;width:1280px!important;height:720px!important;transform:none!important;opacity:1!important;visibility:visible!important}.hud,.speaker-notes{display:none!important}*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}`;parsed.head.append(style);
   const captureFrame=document.createElement('iframe');captureFrame.setAttribute('sandbox','allow-same-origin');captureFrame.setAttribute('aria-hidden','true');captureFrame.style.cssText='position:fixed;left:-20000px;top:0;width:1280px;height:720px;border:0;transform:none;pointer-events:none;';
   try{
@@ -71,7 +71,7 @@ async function exportDeck(format){
   $('exportProgress').value=0;$('exportStatus').textContent='';$('exportDialog').showModal();
   try{
     if(!window.captureSlideNative)await loadExportLibrary('html2canvas.min.js');exportCheck();
-    const name=path.split('/').pop().replace(/\.html?$/i,'');
+    const name=path==='@tutorial'?'landing-page-tutorial':path.split('/').pop().replace(/\.html?$/i,'');
     if(format==='pdf'){
       await loadExportLibrary('jspdf.umd.min.js');exportCheck();
       const pdf=new jspdf.jsPDF({orientation:'landscape',unit:'pt',format:[960,540],compress:true});

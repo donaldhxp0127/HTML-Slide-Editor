@@ -10,7 +10,7 @@ class Handler(SimpleHTTPRequestHandler):
         raw=json.dumps(data,ensure_ascii=False).encode(); self.send_response(status)
         self.send_header('Content-Type','application/json; charset=utf-8'); self.send_header('Content-Length',str(len(raw))); self.end_headers(); self.wfile.write(raw)
     def do_GET(self):
-        if self.path=='/api/decks': return self.reply([str(p.relative_to(ROOT)) for p in ROOT.rglob('*.html') if not any(part in ('slide-editor', '.slide-editor-backups', 'dist', 'node_modules', '.git') or part.endswith('.app') for part in p.relative_to(ROOT).parts)])
+        if self.path=='/api/decks': return self.reply([str(p.relative_to(ROOT)) for p in ROOT.rglob('*.html') if not any(part in ('slide-editor', '.slide-editor-backups', 'dist', 'web-dist', 'node_modules', '.git') or part.endswith('.app') for part in p.relative_to(ROOT).parts)])
         if self.path=='/': self.path='/slide-editor/index.html'
         super().do_GET()
     def do_POST(self):

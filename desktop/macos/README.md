@@ -6,7 +6,7 @@ A native AppKit/WebKit desktop app that bundles the HTML editor and its local fi
 
 1. Unzip `Slide-Studio-macOS-arm64.zip`.
 2. Move `Slide Studio.app` to Applications, or run it directly.
-3. Choose an HTML deck or its containing folder when prompted. Use **Open file / folder** or `Cmd+O` to switch workspaces later.
+3. First launch opens the bundled five-slide Landing Page tutorial. Use **Open file / folder** or `Cmd+O` to choose your own HTML deck or its containing folder.
 4. Edit and save as usual. Save review, backups, and external-change checks are retained.
 
 PDF and PPTX export are available from the header. Exports preserve slide appearance as high-resolution page images; PowerPoint text is not individually editable. macOS uses WebKit’s native PDF renderer for reliable page capture. The sidebar supports drop-between-page reordering and a bottom **＋ New slide** button.

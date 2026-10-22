@@ -207,7 +207,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNa
             switch result {
             case .success(let url):
                 self.home=url;self.webView.load(URLRequest(url:url));self.updateTitle()
-                if self.server.currentFolder() == nil { DispatchQueue.main.asyncAfter(deadline:.now()+0.4) { self.chooseFolder(nil) } }
+                // First launch opens the bundled tutorial. File / Folder remains available.
             case .failure(let error): self.showError(error.localizedDescription)
             }
         }} catch { showError(error.localizedDescription) }

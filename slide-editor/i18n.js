@@ -67,6 +67,45 @@ Object.assign(translations.en,{'打开文件 / 文件夹':'Open file / folder'})
 Object.assign(translations.ja,{'打开文件 / 文件夹':'ファイル / フォルダを開く'});
 Object.assign(translations.en,{"导出 PDF": "Export PDF", "导出 PPTX": "Export PPTX", "正在导出": "Exporting", "＋ 新页面": "＋ New slide", "新页面": "New slide", "双击输入内容": "Double-click to add content", "拖动页面": "Drag slide", "导出失败": "Export failed", "导出完成": "Export complete", "已取消导出": "Export cancelled", "导出包含当前未保存的修改，不会覆盖原文件。PPTX 为高清图片页面，文字不能单独编辑。": "Export includes unsaved visual changes without overwriting HTML. PPTX uses high-resolution page images; text is not individually editable.", "资源加载失败，请检查图片和字体链接。": "Resources failed to load. Check image and font links.", "正在生成文件": "Building file"});
 Object.assign(translations.ja,{"导出 PDF": "PDFを書き出す", "导出 PPTX": "PPTXを書き出す", "正在导出": "書き出し中", "＋ 新页面": "＋ 新しいスライド", "新页面": "新しいスライド", "双击输入内容": "ダブルクリックして内容を入力", "拖动页面": "スライドをドラッグ", "导出失败": "書き出しに失敗しました", "导出完成": "書き出し完了", "已取消导出": "書き出しをキャンセルしました", "导出包含当前未保存的修改，不会覆盖原文件。PPTX 为高清图片页面，文字不能单独编辑。": "未保存の変更も書き出します。元のHTMLは変更しません。PPTXの各ページは画像で、文字を個別に編集できません。", "资源加载失败，请检查图片和字体链接。": "画像やフォントのリンクを確認してください。", "正在生成文件": "ファイルを作成中"});
+// Browser edition and bundled tutorial.
+Object.assign(translations.en,{
+  '教学示例':'Tutorial', '重置教学':'Reset tutorial', '教学示例 · Landing Page':'Tutorial · Landing Page',
+  '保存到浏览器':'Save in browser', '导入 HTML / 文件夹':'Import HTML / folder',
+  '已打开 · 浏览器本地草稿':'Opened · local browser draft',
+  '已保存到此浏览器 · 请导出 HTML 备份':'Saved in this browser · export HTML to back up',
+  '导入本地幻灯片':'Import local slides', '选择 HTML 文件':'Choose HTML file', '选择文件夹':'Choose folder',
+  '关闭':'Close', '正在导入':'Importing',
+  '文件只在浏览器中处理，不会上传。单个 HTML 需自带图片和样式；有外部资源时请选择整个文件夹。':'Files stay in your browser. For HTML with separate images or styles, select the entire folder.',
+  '支持包含 .slide 的 HTML 幻灯片，画布为 1280 × 720；普通长网页需先适配。文件夹默认打开 index.html。':'Supports HTML slides with .slide containers at 1280 × 720. Other webpages need adaptation. Folder import opens index.html by default.',
+  '外部网络资源仍需联网；离线使用请把资源一并放入文件夹。':'Remote resources still need an internet connection. Include assets in the folder for offline use.',
+  '导入文件总大小不能超过 50 MB':'Imported files must total less than 50 MB.',
+  '请选择包含 HTML 的文件或文件夹':'Choose an HTML file or a folder containing one.',
+  '该网页尚未适配：需要 .slide 页面容器。请先使用教学示例。':'This page needs .slide containers. Try the tutorial first.',
+  '缺少资源，请导入完整文件夹：':'Missing asset; import the complete folder:',
+  '导入后的 HTML 过大，请减少图片大小。':'The imported HTML is too large. Reduce image sizes.',
+  '找不到浏览器草稿，请重新导入。':'Browser draft not found. Please import again.',
+  '浏览器存储不可用，请导出 HTML 保存修改。':'Browser storage is unavailable. Export HTML to save your changes.',
+  '重置教学示例？此浏览器保存的教学修改将被清除。':'Reset the tutorial? Its saved edits in this browser will be cleared.'
+});
+Object.assign(translations.ja,{
+  '教学示例':'チュートリアル', '重置教学':'教材をリセット', '教学示例 · Landing Page':'教材 · Landing Page',
+  '保存到浏览器':'ブラウザに保存', '导入 HTML / 文件夹':'HTML / フォルダを読み込む',
+  '已打开 · 浏览器本地草稿':'ブラウザ内の下書きを開きました',
+  '已保存到此浏览器 · 请导出 HTML 备份':'このブラウザに保存済み · HTMLも書き出してください',
+  '导入本地幻灯片':'ローカルスライドを読み込む', '选择 HTML 文件':'HTMLファイルを選ぶ', '选择文件夹':'フォルダを選ぶ',
+  '关闭':'閉じる', '正在导入':'読み込み中',
+  '文件只在浏览器中处理，不会上传。单个 HTML 需自带图片和样式；有外部资源时请选择整个文件夹。':'ファイルはブラウザ内で処理します。画像やCSSが別の場合は、フォルダ全体を選んでください。',
+  '支持包含 .slide 的 HTML 幻灯片，画布为 1280 × 720；普通长网页需先适配。文件夹默认打开 index.html。':'1280 × 720の.slide要素を持つHTMLスライドに対応しています。通常のWebページは調整が必要です。フォルダではindex.htmlを優先します。',
+  '外部网络资源仍需联网；离线使用请把资源一并放入文件夹。':'外部リソースには通信が必要です。オフラインで使う場合は素材もフォルダに入れてください。',
+  '导入文件总大小不能超过 50 MB':'ファイルは合計50 MB以下にしてください。',
+  '请选择包含 HTML 的文件或文件夹':'HTMLファイルか、それを含むフォルダを選んでください。',
+  '该网页尚未适配：需要 .slide 页面容器。请先使用教学示例。':'このページには.slide要素が必要です。まず教材をお試しください。',
+  '缺少资源，请导入完整文件夹：':'素材が見つかりません。フォルダ全体を読み込んでください：',
+  '导入后的 HTML 过大，请减少图片大小。':'HTMLが大きすぎます。画像を小さくしてください。',
+  '找不到浏览器草稿，请重新导入。':'下書きが見つかりません。もう一度読み込んでください。',
+  '浏览器存储不可用，请导出 HTML 保存修改。':'ブラウザに保存できません。HTMLを書き出して変更を保存してください。',
+  '重置教学示例？此浏览器保存的教学修改将被清除。':'教材をリセットしますか？このブラウザに保存した教材の変更は消去されます。'
+});
 let language = 'zh-CN';
 try { language = localStorage.getItem('slide-studio-language') || language; } catch {}
 if (!['zh-CN','en','ja'].includes(language)) language = 'zh-CN';
@@ -130,4 +169,6 @@ function applyLanguage() {
   uiTextNodes.forEach(({node,key,prefix,suffix})=>node.textContent=prefix+t(key)+suffix);
   uiAttributes.forEach(({el,attr,key})=>el.setAttribute(attr,t(key)));
   if (typeof refreshDynamicLanguage==='function')refreshDynamicLanguage();
+  $('language').value=language;
+  $('language').dispatchEvent(new Event('change'));
 }

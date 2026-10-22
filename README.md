@@ -2,13 +2,13 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md)
 
-A local visual editor for HTML slide decks. Edit text directly on a slide, move elements, adjust styles, and jump to the corresponding HTML source. Saved files remain ordinary HTML that you or an AI coding assistant can continue editing.
+A visual editor for HTML slide decks, available as a local Mac app or a browser-only web edition. Edit text directly on a slide, move elements, adjust styles, and jump to the corresponding HTML source. Saved files remain ordinary HTML that you or an AI coding assistant can continue editing.
 
 The editor UI supports **English, 日本語, and 中文**, available from the globe menu in the top-right corner, with your language preference remembered in the browser. Slide content is not translated.
 
 ## Mac desktop app
 
-A native macOS app is available as a local build: double-click **Slide Studio.app**, then choose an HTML file or folder. No Python, Node.js, or terminal is required for the packaged app. See [macOS setup and build notes](desktop/macos/README.md).
+A native macOS app is available as a local build: double-click **Slide Studio.app** to start with the tutorial. Use **Open file / folder** to open your own decks. No Python, Node.js, or terminal is required for the packaged app. See [macOS setup and build notes](desktop/macos/README.md).
 
 ```sh
 ./desktop/macos/build.sh
@@ -16,7 +16,32 @@ A native macOS app is available as a local build: double-click **Slide Studio.ap
 
 Build output: `dist/Slide Studio.app` and `dist/Slide-Studio-macOS-arm64.zip` on Apple Silicon. Local builds are ad-hoc signed and are not notarized for public distribution.
 
-## Browser quick start
+## Online editor and tutorial
+
+The first visit opens a five-slide tutorial adapted from [Start Bootstrap Landing Page](https://github.com/StartBootstrap/startbootstrap-landing-page). Practice editing text, moving/resizing, replacing images, grouping, reordering pages and exporting. The tutorial has embedded images, no CDN dependencies, and the upstream MIT license. Its lesson text is Chinese; the editor UI remains available in all three languages. Use **Tutorial** to return to your saved practice copy, or **Reset tutorial** to restore the original.
+
+The hosted edition requires no local server:
+
+- **Import HTML / folder** reads files in your browser. A single HTML should be self-contained; choose the complete folder when CSS/images are separate. Folder import prefers the root `index.html`, otherwise the first HTML by name. Other HTML files can be imported separately with their resources.
+- Local stylesheets, nested CSS imports, fonts and image resources are embedded in the imported copy for portable HTML export. Remote URLs still need connectivity and appropriate CORS for PDF/PPTX export. Original scripts are paused in the editor; imported dynamic websites are not supported.
+- **Save in browser** reviews the diff and writes to IndexedDB on this device and site origin. The last saved draft reopens on refresh; one previous saved HTML version is retained internally. Browser storage may be cleared or evicted, so **Export HTML** for durable backups. This does not overwrite the file on your computer or sync across devices. Concurrent saves from another tab are rejected instead of silently overwriting them.
+- **Present** opens the current visual content in a new tab with arrow-key navigation; original deck scripts are disabled in this hosted preview.
+- Files are not uploaded to an editing backend. Vercel hosts only the editor and public tutorial. Imported files must total at most 50 MB; the resulting embedded HTML is capped at 30 MB. Normal `.slide` containers and the 1280 × 720 canvas are still required.
+
+### Deploy on Vercel
+
+Import this GitHub repository as a Vercel project with the **Other** preset and repository root `./`. `vercel.json` sets the build command to `npm run build` and output directory to `web-dist`. No database, environment variables, or server functions are needed. The build copies an explicit allowlist of editor assets, dependencies and the public tutorial; personal decks, backups and native binaries are excluded.
+
+To preview the exact static build locally (Node.js is only needed for building):
+
+```sh
+npm run build
+python3 -m http.server 8766 --directory web-dist
+```
+
+Open `http://localhost:8766`. Run `npm test` to verify the deploy allowlist and offline tutorial. To edit tutorial content, change `examples/landing-page/index.html` and run `node scripts/build-tutorial.mjs` before rebuilding.
+
+## Local browser quick start
 
 Requires **Python 3.9 or newer** and a modern desktop browser. No Python packages, Node.js installation, or build step is required to run the editor.
 

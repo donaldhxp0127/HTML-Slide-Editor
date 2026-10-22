@@ -15,3 +15,5 @@ __pycache__/
 
 # Native app build artifacts
 /dist/
+/web-dist/
+/.vercel/

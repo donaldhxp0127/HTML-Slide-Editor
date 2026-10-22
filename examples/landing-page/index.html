@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Landing Page · Slide Studio 教学</title>
+  <!-- Adapted from Start Bootstrap Landing Page. See LICENSE for the MIT license. -->
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #e8edf5; color: #17243b; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; }
+    .deck { position: relative; width: 1280px; height: 720px; margin: auto; }
+    .slide { position: absolute; inset: 0; width: 1280px; height: 720px; display: none; overflow: hidden; background: #fff; }
+    .slide.active { display: block; }
+    h1, h2, h3, p { margin: 0; }
+    .navbar { position: absolute; left: 64px; right: 64px; top: 32px; height: 40px; display: flex; justify-content: space-between; align-items: center; }
+    .brand { font-size: 20px; font-weight: 700; letter-spacing: -.5px; }
+    .lesson { font-size: 14px; background: #edf3ff; color: #3159be; border-radius: 24px; padding: 10px 18px; }
+    .eyebrow { font-size: 14px; letter-spacing: 3px; color: #4169cf; font-weight: 700; }
+    .page-title { position: absolute; top: 138px; left: 80px; font-size: 44px; line-height: 1.25; letter-spacing: -1.5px; }
+    .page-intro { position: absolute; top: 207px; left: 80px; font-size: 19px; line-height: 1.7; color: #64748b; }
+    .footer { position: absolute; left: 64px; right: 64px; bottom: 26px; display: flex; justify-content: space-between; font-size: 12px; color: #718096; }
+    .practice { position: absolute; left: 80px; bottom: 84px; font-size: 17px; color: #4169cf; }
+    .masthead { background: #142c46; color: white; }
+    .hero-image { position: absolute; width: 1280px; height: 720px; object-fit: cover; opacity: .37; }
+    .masthead .navbar, .masthead .footer { color: #e5efff; }
+    .masthead .lesson { background: #fff; }
+    .masthead h1 { position: absolute; top: 217px; left: 100px; width: 920px; font-size: 68px; line-height: 1.25; letter-spacing: -3px; }
+    .hero-description { position: absolute; top: 406px; left: 104px; width: 900px; font-size: 23px; line-height: 1.7; color: #e5efff; }
+    .hero-button { position: absolute; top: 522px; left: 104px; background: #4169ef; border-radius: 10px; padding: 17px 28px; font-size: 18px; font-weight: 600; }
+    .hero-note { position: absolute; top: 542px; left: 345px; font-size: 16px; color: #e5efff; }
+    .features-icons { background: #f7f9fc; }
+    .feature-grid { position: absolute; top: 300px; left: 80px; display: flex; gap: 24px; }
+    .feature-card { position: relative; width: 357px; height: 240px; padding: 34px 30px; background: #fff; border: 1px solid #e4eaf4; border-radius: 18px; }
+    .feature-number { font-size: 36px; color: #4169ef; font-weight: 700; }
+    .feature-card h3 { margin-top: 20px; font-size: 25px; }
+    .feature-card p { margin-top: 13px; font-size: 17px; line-height: 1.7; color: #64748b; }
+    .showcase-img { position: absolute; left: 725px; top: 136px; width: 470px; height: 440px; object-fit: cover; border-radius: 20px; }
+    .showcase .page-title { top: 176px; width: 570px; font-size: 48px; line-height: 1.35; }
+    .showcase-text { position: absolute; top: 328px; left: 80px; width: 555px; font-size: 20px; line-height: 1.9; color: #64748b; }
+    .showcase-hint { position: absolute; top: 486px; left: 80px; font-size: 17px; color: #4169cf; }
+    .testimonial-grid { position: absolute; top: 290px; left: 80px; display: flex; gap: 24px; }
+    .testimonial-item { position: relative; width: 357px; height: 265px; border-radius: 18px; background: #f7f9fc; padding: 25px; }
+    .testimonial-item img { position: absolute; top: 25px; left: 25px; width: 76px; height: 76px; object-fit: cover; border-radius: 50%; }
+    .testimonial-item h3 { position: absolute; top: 49px; left: 120px; font-size: 21px; }
+    .testimonial-item p { position: absolute; top: 126px; left: 25px; width: 305px; font-size: 19px; line-height: 1.7; color: #64748b; }
+    .export-panel { position: absolute; top: 285px; left: 80px; width: 700px; padding: 32px; border: 1px solid #e4eaf4; border-radius: 18px; }
+    .export-panel p { margin: 0 0 22px; font-size: 21px; line-height: 1.6; }
+    .export-panel p:last-child { margin: 0; }
+    .export-number { color: #4169cf; padding-right: 15px; }
+    .export-side { position: absolute; left: 840px; top: 300px; width: 360px; height: 250px; object-fit: cover; border-radius: 18px; }
+  </style>
+</head>
+<body>
+  <main class="deck">
+    <!-- Lesson 1: double-click the heading, type, then press Escape. -->
+    <section class="slide masthead active">
+      <img class="hero-image" src="assets/bg-masthead.jpg" alt="蓝色海面">
+      <div class="navbar"><p class="brand">Slide Studio × Start Bootstrap</p><p class="lesson">01 / 05 · 文字编辑</p></div>
+      <h1>把网页，<br>变成你的作品。</h1>
+      <p class="hero-description">这是一份可以直接编辑的 HTML。<br>双击标题，试着写下你的第一句话，再按 Esc 完成。</p>
+      <p class="hero-button">双击修改这段文字</p>
+      <p class="hero-note">单击选中元素，下方源码会定位到对应位置。</p>
+      <div class="footer"><p>Adapted from Start Bootstrap · Landing Page · MIT</p><p>点击左侧第二页，开始下一步 →</p></div>
+    </section>
+
+    <!-- Lesson 2: move a card via Select parent; Shift-click to select siblings. -->
+    <section class="slide features-icons">
+      <div class="navbar"><p class="brand">Slide Studio / Playground</p><p class="lesson">02 / 05 · 移动与对齐</p></div>
+      <h2 class="page-title">把布局，摆成你喜欢的样子。</h2>
+      <p class="page-intro">拖动文字试试看。粉色辅助线会帮你找到中心和边缘，按住 Alt 可暂时取消吸附。</p>
+      <div class="feature-grid">
+        <div class="feature-card"><p class="feature-number">01</p><h3>直接拖动</h3><p>拖动这行文字。<br>方向键微调，Shift + 方向键移动 10 px。</p></div>
+        <div class="feature-card"><p class="feature-number">02</p><h3>调整大小</h3><p>选中元素后，拖动外侧的八个控制点。<br>角点按住 Shift 保持比例。</p></div>
+        <div class="feature-card"><p class="feature-number">03</p><h3>试试撤销</h3><p>移动以后按 ⌘ / Ctrl + Z。<br>你可以放心练习，再重新开始。</p></div>
+      </div>
+      <p class="practice">整张卡片一起移动：选中文字 → 右侧「选择父容器」→ 拖动卡片。</p>
+      <div class="footer"><p>真实 HTML 元素 · 标准 CSS · 可读源码</p><p>02 / 05</p></div>
+    </section>
+
+    <!-- Lesson 3: the showcase uses a real image rather than a CSS background. -->
+    <section class="slide showcase">
+      <div class="navbar"><p class="brand">Slide Studio / Images</p><p class="lesson">03 / 05 · 图片与样式</p></div>
+      <h2 class="page-title">换一张图片，<br>讲一个新故事。</h2>
+      <p class="showcase-text">单击右侧图片，在属性面板点击「替换图片」。<br>用你的本地图片，替换模板中的手机照片。<br>也可以调整图片尺寸，或尝试裁剪滑块。</p>
+      <p class="showcase-hint">也可以把一张图片拖进画布，创建新的图片元素。</p>
+      <img class="showcase-img" src="assets/bg-showcase-1.jpg" alt="Start Bootstrap 模板中的手机照片">
+      <div class="footer"><p>图片来自原始 Landing Page 示例素材</p><p>03 / 05</p></div>
+    </section>
+
+    <!-- Lesson 4: each card's image, title and quote are editable sibling nodes. -->
+    <section class="slide testimonials">
+      <div class="navbar"><p class="brand">Slide Studio / Layers</p><p class="lesson">04 / 05 · 多选与组合</p></div>
+      <h2 class="page-title">文字、图片，各有自己的位置。</h2>
+      <p class="page-intro">选中第一张卡片里的头像，再按住 Shift 单击同卡片的名字，点击「组合」。</p>
+      <div class="testimonial-grid">
+        <div class="testimonial-item"><img src="assets/testimonials-1.jpg" alt="示例头像一"><h3>你的名字</h3><p>“双击修改这句话，让模板说出你的想法。”</p></div>
+        <div class="testimonial-item"><img src="assets/testimonials-2.jpg" alt="示例头像二"><h3>你的团队</h3><p>“组合后可以一起拖动，也可以随时取消组合。”</p></div>
+        <div class="testimonial-item"><img src="assets/testimonials-3.jpg" alt="示例头像三"><h3>你的故事</h3><p>“右侧图层列表还能锁定、隐藏和调整前后顺序。”</p></div>
+      </div>
+      <p class="practice">组合需要选中同一父容器内的多个元素。按 ⌘ / Ctrl + Z 可撤销练习。</p>
+      <div class="footer"><p>只修改本地副本，不影响原模板网站</p><p>04 / 05</p></div>
+    </section>
+
+    <!-- Lesson 5: sidebar reorder, new slide and three export formats. -->
+    <section class="slide">
+      <div class="navbar"><p class="brand">Slide Studio / Your next slide</p><p class="lesson">05 / 05 · 页面与导出</p></div>
+      <h2 class="page-title">现在，把它变成你自己的演示。</h2>
+      <p class="page-intro">最后三步，试完整个编辑流程。</p>
+      <div class="export-panel">
+        <p><span class="export-number">01</span>拖动左侧缩略图下的 ⠿，调整页面顺序。</p>
+        <p><span class="export-number">02</span>点击左侧最下方「＋ 新页面」，再添加文字。</p>
+        <p><span class="export-number">03</span>导出 HTML、PDF 或 PPTX，带走你的作品。</p>
+      </div>
+      <img class="export-side" src="assets/bg-showcase-2.jpg" alt="HTML 代码示例照片">
+      <p class="practice">HTML 可继续编辑；PDF / PPTX 使用高清页面图片。网页草稿保存在此浏览器，请导出备份。</p>
+      <div class="footer"><p>原模板：startbootstrap.com/theme/landing-page · MIT</p><p>05 / 05 · Have fun creating.</p></div>
+    </section>
+  </main>
+  <script>
+    // Standalone playback for the exported HTML. The editor pauses this script.
+    const pages = [...document.querySelectorAll('.slide')];
+    let page = Math.max(0, Math.min(pages.length - 1, Number(location.hash.slice(1)) - 1 || 0));
+    function showPage() {
+      pages.forEach((slide, i) => slide.classList.toggle('active', i === page));
+      const deck = document.querySelector('.deck');
+      deck.style.transformOrigin = 'top left';
+      deck.style.transform = `scale(${Math.min(innerWidth / 1280, innerHeight / 720)})`;
+    }
+    addEventListener('resize', showPage);
+    addEventListener('keydown', event => {
+      if (['ArrowRight', 'PageDown', ' '].includes(event.key)) page = Math.min(pages.length - 1, page + 1);
+      if (['ArrowLeft', 'PageUp'].includes(event.key)) page = Math.max(0, page - 1);
+      showPage();
+    });
+    showPage();
+  </script>
+</body>
+</html>

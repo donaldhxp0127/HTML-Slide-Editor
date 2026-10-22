@@ -1,0 +1,10 @@
+.git
+.vercel
+dist
+web-dist
+slides_副本
+.editor-test
+.slide-editor-backups
+desktop
+**/.DS_Store
+**/__pycache__
