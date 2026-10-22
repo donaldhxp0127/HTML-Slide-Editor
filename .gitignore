@@ -12,3 +12,6 @@ __pycache__/
 
 # Disposable local QA decks
 /.editor-test/
+
+# Native app build artifacts
+/dist/

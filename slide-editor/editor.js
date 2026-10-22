@@ -140,6 +140,6 @@ $('preview').onclick=()=>{if(!path)return;if(dirty){alert(t('请先保存，再�
 function key(e){if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='s'){e.preventDefault();$('save').click();}if(e.key==='Escape')finish();if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='z'&&!e.target.isContentEditable&&e.target.tagName!=='TEXTAREA'){e.preventDefault();$(e.shiftKey?'redo':'undo').click();}}
 document.addEventListener('keydown',key);window.addEventListener('beforeunload',e=>{if(dirty||sourceDraft){e.preventDefault();e.returnValue='';}});
 initializeLanguage();
-fetch('/api/decks').then(r=>r.json()).then(files=>{files.forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=p;$('decks').append(o);});const preferred=files.find(p=>p.includes('cassi_progress_20261015/index'));if(preferred)$('decks').value=preferred;if(files.length)load();}).catch(e=>status(e.message));
+window.slideStudioDecksReady=fetch('/api/decks').then(r=>r.json()).then(files=>{files.forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=p;$('decks').append(o);});const preferred=files.find(p=>p.includes('cassi_progress_20261015/index'));if(preferred)$('decks').value=preferred;if(files.length)return load();}).catch(e=>status(e.message));
 
 $('properties').onclick=()=>document.body.classList.toggle('show-inspector');

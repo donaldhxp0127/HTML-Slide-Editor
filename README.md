@@ -6,7 +6,17 @@ A local visual editor for HTML slide decks. Edit text directly on a slide, move 
 
 The editor UI supports **English, 日本語, and 中文**, with your language preference remembered in the browser. Slide content is not translated.
 
-## Quick start
+## Mac desktop app
+
+A native macOS app is available as a local build: double-click **Slide Studio.app**, then choose an HTML file or folder. No Python, Node.js, or terminal is required for the packaged app. See [macOS setup and build notes](desktop/macos/README.md).
+
+```sh
+./desktop/macos/build.sh
+```
+
+Build output: `dist/Slide Studio.app` and `dist/Slide-Studio-macOS-arm64.zip` on Apple Silicon. Local builds are ad-hoc signed and are not notarized for public distribution.
+
+## Browser quick start
 
 Requires **Python 3.9 or newer** and a modern desktop browser. No Python packages, Node.js installation, or build step is required to run the editor.
 
@@ -95,6 +105,8 @@ The server binds to `127.0.0.1`; edit and save requests are handled locally. Dec
 | `slide-editor/index.html` | Editor interface |
 | `slide-editor/editor.js` | Visual editing, source mapping, undo/redo, and serialization |
 | `slide-editor/enhancements.js` | Resize/snap tools, thumbnails, images, layers, groups, source coloring, and save review |
+| `desktop/macos/SlideStudio.swift` | Native Mac window, bundled local service, file picker, downloads, and app lifecycle |
+| `slide-editor/desktop.js` | Optional integration with the Mac host |
 | `slide-editor/i18n.js` | Chinese, English, and Japanese UI translations |
 | `slide-editor/editor.css` | Editor layout and responsive styles |
 

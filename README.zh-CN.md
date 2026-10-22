@@ -4,7 +4,13 @@
 
 为本文件夹已有的 `.slide` HTML 幻灯片制作的本地可视化编辑器，无需安装依赖。
 
-## 启动
+## Mac 桌面应用
+
+双击 `dist/Slide Studio.app` 即可打开独立窗口，无需 Python、Node.js 或终端。首次启动选择 HTML 文件或文件夹，以后可点击「打开文件 / 文件夹」或按 Cmd+O 切换。
+
+打包命令：`./desktop/macos/build.sh`。当前产物适用于 Apple Silicon Mac，使用本机临时签名，尚未做 Apple 开发者签名和公证。原生菜单和宿主对话框暂用英文，编辑器界面保留中英日三语。详见 [Mac 版说明](desktop/macos/README.md)。
+
+## 浏览器版启动
 
 需要 Python 3.9 或更新版本。将包含 `.slide` 页面的幻灯片文件夹放到项目根目录，保持 CSS、JS 和图片的相对路径。刷新编辑器后即可选择。
 
