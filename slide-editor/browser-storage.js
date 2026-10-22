@@ -33,11 +33,11 @@ window.slideStudioStorage = (() => {
   async function load(name) {
     let record;
     try { record = await read(name); } catch {}
-    if (record) return record;
+    if (record) return name === tutorial ? {...record, html:window.localizeTutorialHTML(record.html,language)} : record;
     if (name !== tutorial) throw Error(t('找不到浏览器草稿，请重新导入。'));
     const response = await fetch('/slide-editor/tutorial.html');
     if (!response.ok) throw Error('Unable to load tutorial');
-    return {path:tutorial, html:await response.text(), version:'tutorial-original'};
+    return {path:tutorial, html:window.localizeTutorialHTML(await response.text(),language), version:'tutorial-original'};
   }
   async function save(request) {
     // Compare and put in the same transaction, including edits from another tab.
@@ -64,6 +64,16 @@ window.slideStudioStorage = (() => {
     $('openFolder').hidden = !web && !window.slideStudioDesktop;
     if (web) $('openFolder').textContent = t('导入 HTML / 文件夹');
     $('save').textContent = t(handles(path) ? '保存到浏览器' : '保存到原文件');
+  }
+  function updateTutorialLanguage() {
+    if (path !== tutorial || !doc()?.querySelector('.slide')) return;
+    finish();
+    window.localizeTutorial(doc(), language);
+    // Keep undo/redo and save comparisons in the same language. Pending source
+    // drafts stay untouched; mount localizes stock copy when they are applied.
+    history = history.map(html => window.localizeTutorialHTML(html,language));
+    savedHTML = window.localizeTutorialHTML(savedHTML,language);
+    renderList(); updatePageTitle(); syncSource(); paintSelection(); renderLayers();
   }
   async function useTutorial() {
     if ((dirty || sourceDraft) && !confirm(t('当前有未保存的修改，确定打开其他文件吗？'))) return;
@@ -124,6 +134,7 @@ window.slideStudioStorage = (() => {
       $('preview').onclick = () => path === tutorial ? presentation() : preview();
     }
     $('language').addEventListener('change', updateLabels);
+    $('language').addEventListener('change', updateTutorialLanguage);
     updateLabels();
   }
   return {web, tutorial, handles, list, load, save, label, setup, updateLabels};

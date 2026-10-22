@@ -20,7 +20,7 @@ Build output: `dist/Slide Studio.app` and `dist/Slide-Studio-macOS-arm64.zip` on
 
 ## Online editor and tutorial
 
-The first visit opens a five-slide tutorial adapted from [Start Bootstrap Landing Page](https://github.com/StartBootstrap/startbootstrap-landing-page). Practice editing text, moving/resizing, replacing images, grouping, reordering pages and exporting. The tutorial has embedded images, no CDN dependencies, and the upstream MIT license. Its lesson text is Chinese; the editor UI remains available in all three languages. Use **Tutorial** to return to your saved practice copy, or **Reset tutorial** to restore the original.
+The first visit opens a five-slide tutorial adapted from [Start Bootstrap Landing Page](https://github.com/StartBootstrap/startbootstrap-landing-page). Practice editing text, moving/resizing, replacing images, grouping, reordering pages and exporting. The tutorial has embedded images, no CDN dependencies, and the upstream MIT license. Lesson text follows the Chinese, English or Japanese UI language. Switching languages preserves custom text and layout edits, and also updates stock tutorial text in saved practice copies. Use **Tutorial** to return to your saved practice copy, or **Reset tutorial** to restore the original.
 
 The hosted edition requires no local server:
 
