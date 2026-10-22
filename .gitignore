@@ -1,0 +1,11 @@
+# macOS and Python runtime files
+.DS_Store
+__pycache__/
+*.py[cod]
+
+# Automatic editor backups and temporary saves
+.slide-editor-backups/
+*.html.editor-tmp
+
+# Personal research decks in the original local workspace
+/slides_副本/
