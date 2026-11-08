@@ -123,6 +123,7 @@ Browser drafts can be cleared or evicted: export HTML for durable backups. Remot
 | [中文使用指南](docs/guide.zh-CN.md) | 操作说明、文件保存与部署方式 |
 | [Deploy your own copy](docs/guide.md#deploy-on-vercel) | Static Vercel deployment; no database or server functions |
 | [Tutorial source](examples/landing-page/) | Edit the sample deck and regenerate its offline version |
+| [Contributing](CONTRIBUTING.md) | Run tests, preview both editions, and update the tutorial |
 | [Report an issue](https://github.com/donaldhxp0127/HTML-Slide-Editor/issues) | Share a reproducible issue or suggest an improvement |
 
 ---

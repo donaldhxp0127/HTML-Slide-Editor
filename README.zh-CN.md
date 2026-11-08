@@ -123,6 +123,7 @@ python3 slide-editor/server.py
 | [English user guide](docs/guide.md) | 完整英文文档 |
 | [部署到 Vercel](docs/guide.md#deploy-on-vercel) | 静态部署，无需数据库或服务端函数 |
 | [教学示例源码](examples/landing-page/) | 修改教学内容，重新生成离线版本 |
+| [开发与贡献指南（英文）](CONTRIBUTING.md) | 运行测试、预览两个版本和更新教学示例 |
 | [反馈问题](https://github.com/donaldhxp0127/HTML-Slide-Editor/issues) | 提交可复现的问题，或提出改进建议 |
 
 ---
