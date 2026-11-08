@@ -61,8 +61,10 @@ window.slideStudioImport = async function(files) {
   for (const style of parsed.querySelectorAll('style')) style.textContent = await css(style.textContent,name);
   for (const el of parsed.querySelectorAll('[style]')) el.setAttribute('style',await css(el.getAttribute('style'),name));
   for (const el of parsed.querySelectorAll('img[src],source[src],video[src],audio[src],video[poster],link[rel="icon"]')) {
-    const attr = el.hasAttribute('poster') ? 'poster' : el.tagName === 'LINK' ? 'href' : 'src';
-    el.setAttribute(attr,await asset(el.getAttribute(attr),name));
+    const attributes = el.tagName === 'LINK' ? ['href'] : el.tagName === 'VIDEO' ? ['src','poster'] : ['src'];
+    for (const attr of attributes) {
+      if (el.hasAttribute(attr)) el.setAttribute(attr,await asset(el.getAttribute(attr),name));
+    }
   }
   for (const el of parsed.querySelectorAll('[srcset]')) {
     const original = el.getAttribute('srcset');

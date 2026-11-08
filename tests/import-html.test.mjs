@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
+import {webcrypto} from 'node:crypto';
 
 const source = await readFile(new URL('../slide-editor/import-html.js', import.meta.url), 'utf8');
 const limit = 50 * 1024 * 1024;
@@ -71,4 +72,38 @@ test('folder import prefers the root index over alphabetically earlier nested pa
   const files = ['deck/aaa/page.html', 'deck/z.html', 'deck/INDEX.HTML'].map(file);
   await assert.rejects(() => importer({DOMParser})(files), /PARSER_REACHED/);
   assert.deepEqual(reads, ['deck/INDEX.HTML']);
+});
+
+test('video import embeds both the local source and poster', async () => {
+  // A focused DOM fixture isolates attribute rewriting from browser parsing.
+  const attributes = new Map([['src', 'clip.mp4'], ['poster', 'cover.png']]);
+  const video = {
+    tagName: 'VIDEO',
+    hasAttribute: name => attributes.has(name),
+    getAttribute: name => attributes.get(name),
+    setAttribute: (name, value) => attributes.set(name, value),
+  };
+  class DOMParser {
+    parseFromString() {
+      return {
+        querySelector: () => ({}),
+        querySelectorAll: selector => selector.includes('video[src]') ? [video] : [],
+        documentElement: {outerHTML: '<html></html>'},
+      };
+    }
+  }
+  class FileReader {
+    readAsDataURL(blob) {
+      blob.arrayBuffer().then(bytes => {
+        this.result = `data:${blob.type};base64,${Buffer.from(bytes).toString('base64')}`;
+        this.onload();
+      }, error => this.onerror(error));
+    }
+  }
+  const clip = Object.assign(new Blob(['video bytes'], {type: 'video/mp4'}), {name: 'clip.mp4'});
+  const cover = Object.assign(new Blob(['poster bytes'], {type: 'image/png'}), {name: 'cover.png'});
+  const html = {name: 'index.html', size: 1, text: async () => '<section class="slide"><video></video></section>'};
+  await importer({DOMParser, FileReader, Blob, URL, crypto: webcrypto})([html, clip, cover]);
+  assert.equal(attributes.get('src'), 'data:video/mp4;base64,' + Buffer.from('video bytes').toString('base64'));
+  assert.equal(attributes.get('poster'), 'data:image/png;base64,' + Buffer.from('poster bytes').toString('base64'));
 });
