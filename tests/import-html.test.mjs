@@ -74,6 +74,30 @@ test('folder import prefers the root index over alphabetically earlier nested pa
   assert.deepEqual(reads, ['deck/INDEX.HTML']);
 });
 
+test('CSS imports inline quoted and unquoted URLs with nested relative imports', async t => {
+  for (const reference of ['url(styles/theme.css)', 'url( styles/theme.css )', 'url("styles/theme.css")', "url('styles/theme.css')", '"styles/theme.css"']) {
+    await t.test(reference, async () => {
+      const style = {textContent: `@import ${reference} screen;`};
+      class DOMParser {
+        parseFromString() {
+          return {
+            querySelector: () => ({}),
+            querySelectorAll: selector => selector === 'style' ? [style] : [],
+            documentElement: {outerHTML: '<html></html>'},
+          };
+        }
+      }
+      const files = [
+        {name: 'index.html', size: 1, text: async () => '<section class="slide"></section>'},
+        {name: 'styles/theme.css', size: 1, text: async () => '@import url(nested.css);'},
+        {name: 'styles/nested.css', size: 1, text: async () => 'h1 { color: red; }'},
+      ];
+      await importer({DOMParser, URL, crypto: webcrypto})(files);
+      assert.equal(style.textContent, '@media screen {\nh1 { color: red; }\n}');
+    });
+  }
+});
+
 test('video import embeds both the local source and poster', async () => {
   // A focused DOM fixture isolates attribute rewriting from browser parsing.
   const attributes = new Map([['src', 'clip.mp4'], ['poster', 'cover.png']]);
