@@ -74,28 +74,68 @@ test('folder import prefers the root index over alphabetically earlier nested pa
   assert.deepEqual(reads, ['deck/INDEX.HTML']);
 });
 
+async function importInlineStyle(css, resources = {}) {
+  const style = {textContent: css};
+  class DOMParser {
+    parseFromString() {
+      return {
+        querySelector: () => ({}),
+        querySelectorAll: selector => selector === 'style' ? [style] : [],
+        documentElement: {outerHTML: '<html></html>'},
+      };
+    }
+  }
+  let reads = 0;
+  const files = [
+    {name: 'index.html', size: 1, text: async () => '<section class="slide"></section>'},
+    ...Object.entries(resources).map(([name, content]) => ({
+      name, size: content.length,
+      async text() {
+        assert.ok(++reads < 10, 'CSS import did not terminate');
+        return content;
+      },
+    })),
+  ];
+  await importer({DOMParser, URL, crypto: webcrypto})(files);
+  return style.textContent;
+}
+
 test('CSS imports inline quoted and unquoted URLs with nested relative imports', async t => {
   for (const reference of ['url(styles/theme.css)', 'url( styles/theme.css )', 'url("styles/theme.css")', "url('styles/theme.css')", '"styles/theme.css"']) {
     await t.test(reference, async () => {
-      const style = {textContent: `@import ${reference} screen;`};
-      class DOMParser {
-        parseFromString() {
-          return {
-            querySelector: () => ({}),
-            querySelectorAll: selector => selector === 'style' ? [style] : [],
-            documentElement: {outerHTML: '<html></html>'},
-          };
-        }
-      }
-      const files = [
-        {name: 'index.html', size: 1, text: async () => '<section class="slide"></section>'},
-        {name: 'styles/theme.css', size: 1, text: async () => '@import url(nested.css);'},
-        {name: 'styles/nested.css', size: 1, text: async () => 'h1 { color: red; }'},
-      ];
-      await importer({DOMParser, URL, crypto: webcrypto})(files);
-      assert.equal(style.textContent, '@media screen {\nh1 { color: red; }\n}');
+      const css = await importInlineStyle(`@import ${reference} screen;`, {
+        'styles/theme.css': '@import url(nested.css);',
+        'styles/nested.css': 'h1 { color: red; }',
+      });
+      assert.equal(css, '@media screen {\nh1 { color: red; }\n}');
     });
   }
+});
+
+test('CSS imports reject direct and indirect cycles with the offending path', async t => {
+  for (const [name, resources] of [
+    ['direct cycle', {'styles/theme.css': '@import url(theme.css);'}],
+    ['indirect cycle', {'styles/theme.css': '@import "nested.css";', 'styles/nested.css': '@import url(theme.css);'}],
+  ]) {
+    await t.test(name, async () => {
+      await assert.rejects(
+        () => importInlineStyle('@import url(styles/theme.css);', resources),
+        /Circular CSS import: styles\/theme\.css/,
+      );
+    });
+  }
+});
+
+test('missing nested stylesheets report the resolved path', async () => {
+  await assert.rejects(
+    () => importInlineStyle('@import "styles/theme.css";', {'styles/theme.css': '@import url(missing.css);'}),
+    /缺少资源，请导入完整文件夹： styles\/missing\.css/,
+  );
+});
+
+test('remote CSS imports remain external instead of requiring local files', async () => {
+  const css = '@import "https://example.com/theme.css" print;';
+  assert.equal(await importInlineStyle(css), css);
 });
 
 test('video import embeds both the local source and poster', async () => {
