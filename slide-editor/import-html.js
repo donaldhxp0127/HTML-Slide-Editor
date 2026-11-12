@@ -40,15 +40,16 @@ window.slideStudioImport = async function(files) {
     return output+text.slice(cursor);
   }
   async function css(text, from, chain=[]) {
-    text = await replaceAsync(text, /@import\s+(?:url\(\s*(?:["']([^"']+)["']|([^\s"'()]+))\s*\)|["']([^"']+)["'])\s*([^;]*);/gi, async match => {
+    text = await replaceAsync(text, /\/\*[\s\S]*?\*\/|@import\s+(?:url\(\s*(?:["']([^"']+)["']|([^\s"'()]+))\s*\)|["']([^"']+)["'])\s*([^;]*);/gi, async match => {
+      if (match[0].startsWith('/*')) return match[0];
       const found = resolve(match[1]??match[2]??match[3],from);
       if (!found) return match[0];
       if (chain.includes(found.key)) throw Error('Circular CSS import: '+found.key);
       const content = await css(await found.file.text(), found.key, [...chain,found.key]);
       return match[4].trim() ? `@media ${match[4]} {\n${content}\n}` : content;
     });
-    return replaceAsync(text, /url\(\s*(?:"([^"]*)"|'([^']*)'|([^\s)]+))\s*\)/gi,
-      async match => `url("${await asset(match[1]??match[2]??match[3],from)}")`);
+    return replaceAsync(text, /\/\*[\s\S]*?\*\/|url\(\s*(?:"([^"]*)"|'([^']*)'|([^\s)]+))\s*\)/gi,
+      async match => match[0].startsWith('/*') ? match[0] : `url("${await asset(match[1]??match[2]??match[3],from)}")`);
   }
   for (const link of parsed.querySelectorAll('link[rel="stylesheet"]')) {
     const found = resolve(link.getAttribute('href'),name);

@@ -138,6 +138,23 @@ test('remote CSS imports remain external instead of requiring local files', asyn
   assert.equal(await importInlineStyle(css), css);
 });
 
+test('CSS comments do not cause missing-resource errors or get rewritten', async t => {
+  for (const comment of [
+    '/* @import "unused.css"; */',
+    '/* @import url(unused.css); */',
+    '/* background: url(unused.png); */',
+    '/* example:\n@import "unused.css";\nbackground: url(unused.png);\n*/',
+  ]) {
+    await t.test(comment, async () => {
+      const css = `${comment}\n@import "theme.css";`;
+      assert.equal(
+        await importInlineStyle(css, {'theme.css': 'h1 { color: red; }'}),
+        `${comment}\nh1 { color: red; }`,
+      );
+    });
+  }
+});
+
 test('video import embeds both the local source and poster', async () => {
   // A focused DOM fixture isolates attribute rewriting from browser parsing.
   const attributes = new Map([['src', 'clip.mp4'], ['poster', 'cover.png']]);
