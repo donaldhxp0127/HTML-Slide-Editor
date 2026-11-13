@@ -155,6 +155,25 @@ test('CSS comments do not cause missing-resource errors or get rewritten', async
   }
 });
 
+test('CSS string literals containing resource syntax stay unchanged', async t => {
+  for (const declaration of [
+    'content: "url(missing.png)";',
+    "content: 'url(missing.png)';",
+    'content: "@import \'missing.css\';";',
+    "content: '@import \"missing.css\";';",
+    'content: "say \\"url(missing.png)\\"";',
+    "content: 'say \\'url(missing.png)\\'';",
+  ]) {
+    await t.test(declaration, async () => {
+      const css = `.slide::before { ${declaration} }\n@import "theme.css";`;
+      assert.equal(
+        await importInlineStyle(css, {'theme.css': 'h1 { color: red; }'}),
+        `.slide::before { ${declaration} }\nh1 { color: red; }`,
+      );
+    });
+  }
+});
+
 test('video import embeds both the local source and poster', async () => {
   // A focused DOM fixture isolates attribute rewriting from browser parsing.
   const attributes = new Map([['src', 'clip.mp4'], ['poster', 'cover.png']]);
