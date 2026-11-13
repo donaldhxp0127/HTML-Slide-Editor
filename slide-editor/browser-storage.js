@@ -86,7 +86,8 @@ window.slideStudioStorage = (() => {
     $('decks').value = tutorial; dirty = false; sourceDraft = false; await window.load();
   }
   function presentation() {
-    if (!path || sourceDraft) return;
+    if (!path) return;
+    if (sourceDraft) return alert(t('源码有待应用的修改，应用或还原后即可定位元素。'));
     finish();
     const parsed = new DOMParser().parseFromString(clean(), 'text/html');
     parsed.querySelectorAll('script,base,meta[http-equiv="refresh" i]').forEach(el => el.remove());
@@ -97,7 +98,9 @@ window.slideStudioStorage = (() => {
     const style = parsed.createElement('style');
     style.textContent = 'html,body{margin:0;background:#101827;overflow:hidden}.deck{position:absolute!important;width:1280px!important;height:720px!important;left:50%;top:50%;transform:translate(-50%,-50%) scale(var(--fit));transform-origin:center}.slide{display:none!important;position:absolute!important;inset:0!important;width:1280px!important;height:720px!important}.slide.present{display:block!important}.speaker-notes,.hud{display:none!important}';
     parsed.head.append(style);
-    const script = parsed.createElement('script'); script.nonce = nonce;
+    // DOMParser creates an inert document: use the HTML attribute so the
+    // nonce survives outerHTML serialization into the presentation blob.
+    const script = parsed.createElement('script'); script.setAttribute('nonce', nonce);
     script.textContent = `const pages=[...document.querySelectorAll('.slide')];let index=${current};function show(){pages.forEach((p,i)=>p.classList.toggle('present',i===index));document.documentElement.style.setProperty('--fit',Math.min(innerWidth/1280,innerHeight/720));}onresize=show;onkeydown=e=>{if(['ArrowRight','PageDown',' '].includes(e.key))index=Math.min(pages.length-1,index+1);if(['ArrowLeft','PageUp'].includes(e.key))index=Math.max(0,index-1);show()};show();`;
     parsed.body.append(script);
     const url = URL.createObjectURL(new Blob(['<!doctype html>\n'+parsed.documentElement.outerHTML], {type:'text/html'}));
