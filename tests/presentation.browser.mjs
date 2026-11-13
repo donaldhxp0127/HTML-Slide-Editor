@@ -10,7 +10,7 @@ import path from 'node:path';
 const {chromium} = createRequire(import.meta.url)(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const root = fileURLToPath(new URL('../', import.meta.url));
 
-test('Present opens rendered slides and supports navigation in both browser editions', async t => {
+test('Present works in the current tab without popup support', async t => {
   const server = createServer(async (request, response) => {
     try {
       const pathname = new URL(request.url, 'http://localhost').pathname;
@@ -33,35 +33,63 @@ test('Present opens rendered slides and supports navigation in both browser edit
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   let browser;
   try {
-    browser = await chromium.launch({headless: true,
+    browser = await chromium.launch({headless: true, ignoreDefaultArgs: ['--disable-popup-blocking'],
       ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE ? {executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE} : {})});
     for (const edition of ['/', '/web/']) {
       await t.test(edition === '/' ? 'local tutorial' : 'online tutorial', async () => {
         const context = await browser.newContext();
         try {
+          // Reproduce browsers/hosts that do not open a new popup at all.
+          await context.addInitScript(() => { window.open = () => { throw Error('Popup unavailable'); }; });
           const page = await context.newPage();
           await page.goto(`http://127.0.0.1:${server.address().port}${edition}`);
           await page.frameLocator('#canvas').locator('.slide').first().waitFor();
-          const popupPromise = context.waitForEvent('page');
           await page.locator('#preview').click();
-          const popup = await popupPromise;
+          const popup = page.frameLocator('#presentationFrame');
           await popup.locator('.slide.present').waitFor();
           assert.equal(await popup.locator('.slide').count(), 5);
           assert.equal(await popup.locator('.slide').nth(0).isVisible(), true);
-          assert.equal(await popup.evaluate(() => window.opener), null);
+          assert.equal(context.pages().length, 1);
+          assert.equal(await page.locator('#presentationFrame').getAttribute('sandbox'), 'allow-scripts');
           const policy = await popup.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute('content');
           const nonce = await popup.locator('script').evaluate(script => script.nonce);
           assert.ok(nonce);
           assert.ok(policy.includes(`'nonce-${nonce}'`));
-          await popup.keyboard.press('ArrowRight');
+          await popup.locator('body').press('ArrowRight');
           assert.equal(await popup.locator('.slide').nth(1).isVisible(), true);
           assert.equal(await popup.locator('.slide').nth(0).isVisible(), false);
-          await popup.keyboard.press('ArrowLeft');
+          await popup.locator('body').press('ArrowLeft');
           assert.equal(await popup.locator('.slide').nth(0).isVisible(), true);
+          await page.locator('#presentationNext').click();
+          await popup.locator('.slide').nth(1).waitFor({state:'visible'});
+          await page.locator('#presentationPrevious').click();
+          await popup.locator('.slide').nth(0).waitFor({state:'visible'});
           if (process.env.PRESENTATION_SCREENSHOT && edition === '/web/') {
-            await popup.screenshot({path: process.env.PRESENTATION_SCREENSHOT});
+            await page.screenshot({path: process.env.PRESENTATION_SCREENSHOT});
           }
-          await popup.close();
+          await popup.locator('body').press('Escape');
+          await page.locator('#presentation').waitFor({state:'detached'});
+          assert.equal(await page.locator('#preview').evaluate(el => el === document.activeElement), true);
+          // Reopening creates a fresh player, and the close button returns to editing.
+          await page.locator('#preview').click();
+          await popup.locator('.slide.present').waitFor();
+          await page.locator('#presentationClose').click();
+          await page.locator('#presentation').waitFor({state:'detached'});
+
+          if (edition === '/web/') {
+            await page.locator('#openFolder').click();
+            await page.locator('#htmlFiles').setInputFiles({name:'presentation-regression.html',mimeType:'text/html',buffer:Buffer.from(`<!doctype html><html><head><title>Imported deck</title><style>.deck{width:1280px;height:720px}.slide{background:white}h1{font-size:64px}</style></head><body><main class="deck"><section class="slide"><h1>Imported first</h1></section><section class="slide"><h1>Imported second</h1></section></main><script>document.body.textContent='Original script must not run';</script></body></html>`)});
+            await page.frameLocator('#canvas').getByText('Imported first').waitFor();
+            // Start at the selected slide; playback must not change editor selection.
+            await page.locator('#slides button').filter({hasText:'Imported second'}).click();
+            await page.locator('#preview').click();
+            await popup.getByText('Imported second').waitFor();
+            await page.locator('#presentationPrevious').click();
+            await popup.getByText('Imported first').waitFor();
+            assert.equal(await popup.locator('body').textContent().then(text => text.includes('Original script must not run')), false);
+            await page.locator('#presentationClose').click();
+            await page.frameLocator('#canvas').getByText('Imported second').waitFor();
+          }
 
           // Pending source edits must explain the problem rather than silently return.
           await page.locator('#sourceToggle').click();
@@ -74,6 +102,7 @@ test('Present opens rendered slides and supports navigation in both browser edit
           await page.locator('#preview').click();
           await dialogPromise;
           assert.equal(context.pages().length, 1);
+          assert.equal(await page.locator('#presentation').count(), 0);
         } finally { await context.close(); }
       });
     }

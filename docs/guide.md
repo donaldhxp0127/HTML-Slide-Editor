@@ -28,7 +28,7 @@ The hosted edition requires no local server:
 - **Import HTML / folder** reads files in your browser. A single HTML should be self-contained; choose the complete folder when CSS/images are separate. Folder import prefers the root `index.html`, otherwise the first HTML by name. Other HTML files can be imported separately with their resources.
 - Local stylesheets, nested CSS imports, fonts and image resources are embedded in the imported copy for portable HTML export. Remote URLs still need connectivity and appropriate CORS for PDF/PPTX export. Original scripts are paused in the editor; imported dynamic websites are not supported.
 - **Save in browser** reviews the diff and writes to IndexedDB on this device and site origin. The last saved draft reopens on refresh; one previous saved HTML version is retained internally. Browser storage may be cleared or evicted, so **Export HTML** for durable backups. This does not overwrite the file on your computer or sync across devices. Concurrent saves from another tab are rejected instead of silently overwriting them.
-- **Present** opens the current visual content in a new tab with arrow-key navigation; original deck scripts are disabled in this hosted preview.
+- **Present** displays the current visual content in this tab, without requiring popups. Use the arrow keys or Previous/Next buttons to navigate; press Escape or Exit presentation to return to editing. Original deck scripts are disabled in this hosted preview.
 - Files are not uploaded to an editing backend. Vercel hosts only the editor and public tutorial. Imported files must total at most 50 MB; the resulting embedded HTML is capped at 30 MB. Normal `.slide` containers and the 1280 × 720 canvas are still required.
 
 ### Deploy on Vercel

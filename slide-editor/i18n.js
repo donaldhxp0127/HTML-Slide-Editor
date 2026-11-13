@@ -69,6 +69,7 @@ Object.assign(translations.en,{"导出 PDF": "Export PDF", "导出 PPTX": "Expor
 Object.assign(translations.ja,{"导出 PDF": "PDFを書き出す", "导出 PPTX": "PPTXを書き出す", "正在导出": "書き出し中", "＋ 新页面": "＋ 新しいスライド", "新页面": "新しいスライド", "双击输入内容": "ダブルクリックして内容を入力", "拖动页面": "スライドをドラッグ", "导出失败": "書き出しに失敗しました", "导出完成": "書き出し完了", "已取消导出": "書き出しをキャンセルしました", "导出包含当前未保存的修改，不会覆盖原文件。PPTX 为高清图片页面，文字不能单独编辑。": "未保存の変更も書き出します。元のHTMLは変更しません。PPTXの各ページは画像で、文字を個別に編集できません。", "资源加载失败，请检查图片和字体链接。": "画像やフォントのリンクを確認してください。", "正在生成文件": "ファイルを作成中"});
 // Browser edition and bundled tutorial.
 Object.assign(translations.en,{
+  "放映":"Present", "上一页":"Previous", "下一页":"Next", "退出放映":"Exit presentation",
   '教学示例':'Tutorial', '重置教学':'Reset tutorial', '教学示例 · Landing Page':'Tutorial · Landing Page',
   '保存到浏览器':'Save in browser', '导入 HTML / 文件夹':'Import HTML / folder',
   '已打开 · 浏览器本地草稿':'Opened · local browser draft',
@@ -88,6 +89,7 @@ Object.assign(translations.en,{
   '重置教学示例？此浏览器保存的教学修改将被清除。':'Reset the tutorial? Its saved edits in this browser will be cleared.'
 });
 Object.assign(translations.ja,{
+  "放映":"スライドショー", "上一页":"前へ", "下一页":"次へ", "退出放映":"スライドショーを終了",
   '教学示例':'チュートリアル', '重置教学':'教材をリセット', '教学示例 · Landing Page':'教材 · Landing Page',
   '保存到浏览器':'ブラウザに保存', '导入 HTML / 文件夹':'HTML / フォルダを読み込む',
   '已打开 · 浏览器本地草稿':'ブラウザ内の下書きを開きました',

@@ -99,12 +99,53 @@ window.slideStudioStorage = (() => {
     style.textContent = 'html,body{margin:0;background:#101827;overflow:hidden}.deck{position:absolute!important;width:1280px!important;height:720px!important;left:50%;top:50%;transform:translate(-50%,-50%) scale(var(--fit));transform-origin:center}.slide{display:none!important;position:absolute!important;inset:0!important;width:1280px!important;height:720px!important}.slide.present{display:block!important}.speaker-notes,.hud{display:none!important}';
     parsed.head.append(style);
     // DOMParser creates an inert document: use the HTML attribute so the
-    // nonce survives outerHTML serialization into the presentation blob.
+    // nonce survives outerHTML serialization into the presentation document.
     const script = parsed.createElement('script'); script.setAttribute('nonce', nonce);
-    script.textContent = `const pages=[...document.querySelectorAll('.slide')];let index=${current};function show(){pages.forEach((p,i)=>p.classList.toggle('present',i===index));document.documentElement.style.setProperty('--fit',Math.min(innerWidth/1280,innerHeight/720));}onresize=show;onkeydown=e=>{if(['ArrowRight','PageDown',' '].includes(e.key))index=Math.min(pages.length-1,index+1);if(['ArrowLeft','PageUp'].includes(e.key))index=Math.max(0,index-1);show()};show();`;
+    script.textContent = `const pages=[...document.querySelectorAll('.slide')];let index=Math.max(0,Math.min(pages.length-1,${current}));
+      function show(){pages.forEach((p,i)=>p.classList.toggle('present',i===index));document.documentElement.style.setProperty('--fit',Math.min(innerWidth/1280,innerHeight/720));parent.postMessage({presentation:'${nonce}',index,total:pages.length},'*');}
+      function navigate(key){if(key==='Escape'){parent.postMessage({presentation:'${nonce}',close:true},'*');return;}if(['ArrowRight','PageDown',' '].includes(key))index=Math.min(pages.length-1,index+1);if(['ArrowLeft','PageUp'].includes(key))index=Math.max(0,index-1);show();}
+      onresize=show;onkeydown=e=>{if(['ArrowRight','PageDown',' ','ArrowLeft','PageUp','Escape'].includes(e.key)){e.preventDefault();navigate(e.key);}};
+      onmessage=e=>{if(e.source===parent&&e.data?.presentation==='${nonce}')navigate(e.data.key);};show();`;
     parsed.body.append(script);
-    const url = URL.createObjectURL(new Blob(['<!doctype html>\n'+parsed.documentElement.outerHTML], {type:'text/html'}));
-    window.open(url, '_blank', 'noopener'); setTimeout(() => URL.revokeObjectURL(url), 60000);
+    // Keep playback in this tab: some browsers silently discard blob popups.
+    // An opaque sandbox isolates deck content from editor state and storage.
+    const dialog = document.createElement('dialog'); dialog.id = 'presentation';
+    dialog.setAttribute('aria-label', t('放映'));
+    dialog.style.cssText = 'position:fixed;inset:0;margin:0;padding:0;border:0;border-radius:0;width:100vw;height:100dvh;max-width:none;max-height:none;background:#101827;color:white;overflow:hidden';
+    const frame = document.createElement('iframe'); frame.id = 'presentationFrame';
+    frame.title = t('放映'); frame.setAttribute('sandbox', 'allow-scripts');
+    frame.style.cssText = 'position:relative;display:block;border:0;width:100%;height:calc(100% - 52px)';
+    const controls = document.createElement('div');
+    controls.style.cssText = 'height:52px;display:flex;align-items:center;justify-content:center;gap:16px';
+    const command = key => frame.contentWindow.postMessage({presentation:nonce,key}, '*');
+    function button(id, label, action) {
+      const el = document.createElement('button'); el.id = id; el.textContent = t(label); el.style.color = '#27364b';
+      el.onclick = action; controls.append(el); return el;
+    }
+    const previous = button('presentationPrevious', '上一页', () => command('ArrowLeft'));
+    const counter = document.createElement('span'); counter.setAttribute('aria-live', 'polite'); controls.append(counter);
+    const next = button('presentationNext', '下一页', () => command('ArrowRight'));
+    button('presentationClose', '退出放映', () => dialog.close());
+    const receive = event => {
+      if (event.source !== frame.contentWindow || event.data?.presentation !== nonce) return;
+      if (event.data.close) { dialog.close(); return; }
+      counter.textContent = `${event.data.index + 1} / ${event.data.total}`;
+      previous.disabled = event.data.index <= 0; next.disabled = event.data.index >= event.data.total - 1;
+    };
+    window.addEventListener('message', receive);
+    dialog.addEventListener('keydown', event => {
+      // Do not let presentation keys nudge or undo selected editor elements.
+      event.stopPropagation();
+      if (['ArrowRight','PageDown','ArrowLeft','PageUp'].includes(event.key)) {
+        event.preventDefault(); command(event.key);
+      }
+    });
+    dialog.addEventListener('close', () => {
+      window.removeEventListener('message', receive); dialog.remove(); $('preview').focus();
+    }, {once:true});
+    frame.onload = () => frame.contentWindow.focus();
+    frame.srcdoc = '<!doctype html>\n' + parsed.documentElement.outerHTML;
+    dialog.append(frame, controls); document.body.append(dialog); dialog.showModal();
   }
   function setup() {
     $('tutorial').onclick = () => useTutorial().catch(error => alert(error.message));
