@@ -69,6 +69,12 @@ window.slideStudioImport = async function(files) {
       if (el.hasAttribute(attr)) el.setAttribute(attr,await asset(el.getAttribute(attr),name));
     }
   }
+  // SVG images use href (or the legacy xlink:href), not HTML's src.
+  for (const el of parsed.querySelectorAll('svg image')) {
+    for (const attr of ['href', 'xlink:href']) {
+      if (el.hasAttribute(attr)) el.setAttribute(attr,await asset(el.getAttribute(attr),name));
+    }
+  }
   for (const el of parsed.querySelectorAll('[srcset]')) {
     const original = el.getAttribute('srcset');
     if (original.includes('data:')) continue;

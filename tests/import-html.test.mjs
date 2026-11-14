@@ -207,3 +207,47 @@ test('video import embeds both the local source and poster', async () => {
   assert.equal(attributes.get('src'), 'data:video/mp4;base64,' + Buffer.from('video bytes').toString('base64'));
   assert.equal(attributes.get('poster'), 'data:image/png;base64,' + Buffer.from('poster bytes').toString('base64'));
 });
+
+test('inline SVG images embed local href and xlink:href resources', async () => {
+  const attributes = new Map([['href', 'assets/photo.png'], ['xlink:href', 'assets/photo.png#fallback']]);
+  const image = {
+    hasAttribute: name => attributes.has(name),
+    getAttribute: name => attributes.get(name),
+    setAttribute: (name, value) => attributes.set(name, value),
+  };
+  class DOMParser {
+    parseFromString() {
+      return {
+        querySelector: () => ({}),
+        querySelectorAll: selector => selector === 'svg image' ? [image] : [],
+        documentElement: {outerHTML: '<html></html>'},
+      };
+    }
+  }
+  let reads = 0;
+  class FileReader {
+    readAsDataURL(blob) {
+      reads++;
+      blob.arrayBuffer().then(bytes => {
+        this.result = `data:${blob.type};base64,${Buffer.from(bytes).toString('base64')}`;
+        this.onload();
+      }, error => this.onerror(error));
+    }
+  }
+  const photo = Object.assign(new Blob(['photo bytes'], {type:'image/png'}), {name:'assets/photo.png'});
+  const html = {name:'index.html',size:1,text:async () => '<section class="slide"><svg><image/></svg></section>'};
+  const run = importer({DOMParser, FileReader, Blob, URL, crypto:webcrypto});
+  await run([html, photo]);
+  const data = 'data:image/png;base64,' + Buffer.from('photo bytes').toString('base64');
+  assert.equal(attributes.get('href'), data);
+  assert.equal(attributes.get('xlink:href'), data + '#fallback');
+  assert.equal(reads, 1, 'shared SVG resources should use the asset cache');
+
+  attributes.set('href', 'missing.png');
+  await assert.rejects(() => run([html]), /缺少资源，请导入完整文件夹： missing.png/);
+  for (const reference of ['https://example.com/photo.png', '//example.com/photo.png', '#internal', data]) {
+    attributes.clear(); attributes.set('href', reference);
+    await run([html]);
+    assert.equal(attributes.get('href'), reference);
+  }
+});

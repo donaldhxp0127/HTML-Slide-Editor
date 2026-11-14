@@ -3,14 +3,15 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
 import {createServer} from 'node:http';
-import {readFile} from 'node:fs/promises';
+import {readFile, mkdtemp, mkdir, writeFile, rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 
 const {chromium} = createRequire(import.meta.url)(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const root = fileURLToPath(new URL('../', import.meta.url));
 
-test('Present works in the current tab without popup support', async t => {
+test('Browser import and presentation', async t => {
   const server = createServer(async (request, response) => {
     try {
       const pathname = new URL(request.url, 'http://localhost').pathname;
@@ -106,6 +107,50 @@ test('Present works in the current tab without popup support', async t => {
         } finally { await context.close(); }
       });
     }
+    await t.test('SVG images survive folder import and standalone HTML export', async () => {
+      const directory = await mkdtemp(path.join(tmpdir(), 'slide-studio-svg-'));
+      const context = await browser.newContext();
+      try {
+        await mkdir(path.join(directory, 'assets'));
+        await writeFile(path.join(directory, 'assets/swatch.svg'), '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="lime"/></svg>');
+        await writeFile(path.join(directory, 'index.html'), `<!doctype html><html><head><title>SVG image fixture</title></head><body><main class="deck"><section class="slide"><h1>SVG image fixture</h1><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="240" height="100"><image id="modern" href="assets/swatch.svg" width="100" height="100"/><image id="legacy" xlink:href="assets/swatch.svg" x="120" width="100" height="100"/></svg></section></main></body></html>`);
+        const page = await context.newPage();
+        await page.goto(`http://127.0.0.1:${server.address().port}/web/`);
+        await page.frameLocator('#canvas').locator('.slide').first().waitFor();
+        await page.locator('#openFolder').click();
+        await page.locator('#directoryFiles').setInputFiles(directory);
+        const frame = page.frameLocator('#canvas');
+        await frame.getByText('SVG image fixture').waitFor();
+        const modern = await frame.locator('#modern').getAttribute('href');
+        assert.match(modern, /^data:image\/svg\+xml;base64,/);
+        assert.equal(await frame.locator('#legacy').getAttribute('xlink:href'), modern);
+        // Export and reimport just the HTML, without supplying the assets folder.
+        const downloadPromise = page.waitForEvent('download');
+        await page.locator('#export').click();
+        const download = await downloadPromise;
+        const exported = await readFile(await download.path());
+        await page.locator('#openFolder').click();
+        await page.locator('#htmlFiles').setInputFiles({name:'svg-export.html',mimeType:'text/html',buffer:exported});
+        await page.locator('#importDialog').waitFor({state:'hidden'});
+        await frame.getByText('SVG image fixture').waitFor();
+        assert.equal(await frame.locator('#modern').getAttribute('href'), modern);
+        assert.equal(await frame.locator('#legacy').getAttribute('xlink:href'), modern);
+        // Rasterize the exported SVG in the browser: both image elements must
+        // actually render green pixels, not merely retain their attributes.
+        const pixels = await frame.locator('svg').evaluate(async svg => {
+          const image = new Image();
+          image.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(svg));
+          await image.decode();
+          const canvas = document.createElement('canvas'); canvas.width=240; canvas.height=100;
+          const ctx = canvas.getContext('2d'); ctx.drawImage(image,0,0);
+          return [10,130].map(x => [...ctx.getImageData(x,10,1,1).data]);
+        });
+        assert.deepEqual(pixels, [[0,255,0,255],[0,255,0,255]]);
+      } finally {
+        await context.close();
+        await rm(directory, {recursive:true,force:true});
+      }
+    });
   } finally {
     if (browser) await browser.close();
     await new Promise(resolve => server.close(resolve));
