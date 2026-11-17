@@ -11,6 +11,8 @@ git diff --check
 
 The test suite covers HTML import validation and file selection, editable PowerPoint output, the static deployment asset allowlist, and the offline tutorial and its translations. Import validation tests use a small parser stub; they do not replace testing import and rendering in a real browser.
 
+For changes to the Python local server, also run `python3 -m unittest discover -s tests -p 'server_test.py'`. These standard-library tests use temporary deck files and a loopback server on an available port. They check `.html`/`.htm` discovery regardless of case, loading, saving, backups, save conflicts, and rejection of unsupported or editor-internal files.
+
 For changes to **Present**, run `npm run test:browser` in an environment with Playwright and its Chromium browser available. This optional test starts a temporary loopback server and checks local and online tutorials plus an imported deck with popup support disabled. It checks rendering, keyboard and button navigation, exiting and reopening, selected-slide preservation, the sandbox and CSP nonce, and feedback for pending source edits. Set `PLAYWRIGHT_MODULE` to an absolute Playwright module path if it is provided outside this checkout; `PLAYWRIGHT_CHROMIUM_EXECUTABLE` can select an existing Chromium executable. The default `npm test` command still requires no installed npm packages.
 
 The web-build tests recreate `web-dist/`. That directory is generated output and is ignored by Git. Keep source changes in `slide-editor/`, `scripts/`, or the tutorial source rather than editing `web-dist/` directly.
