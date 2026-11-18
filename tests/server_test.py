@@ -2,6 +2,7 @@
 import http.client
 import importlib.util
 import json
+import os
 from pathlib import Path
 import tempfile
 import threading
@@ -19,7 +20,7 @@ class QuietHandler(server.Handler):
         pass
 
 
-class DeckExtensionsTest(unittest.TestCase):
+class LocalServerTest(unittest.TestCase):
     def setUp(self):
         self.directory = tempfile.TemporaryDirectory()
         self.original_root = server.ROOT
@@ -91,6 +92,43 @@ class DeckExtensionsTest(unittest.TestCase):
                 self.write(name)
                 status, _ = self.request('/api/load', {'path': name})
                 self.assertEqual(status, 400)
+
+    def assert_file_access_rejected(self, requested_path, file):
+        original = file.read_bytes()
+        for endpoint in ['/api/load', '/api/save']:
+            with self.subTest(endpoint=endpoint, path=requested_path):
+                status, result = self.request(endpoint, {
+                    'path': requested_path,
+                    'version': server.digest(original),
+                    'html': '<section class="slide">Must not be written</section>',
+                })
+                self.assertEqual(status, 400)
+                self.assertEqual(result, {'error': '无效路径'})
+                self.assertEqual(file.read_bytes(), original)
+        self.assertFalse((server.ROOT / '.slide-editor-backups').exists())
+        self.assertFalse(list(file.parent.glob('*.editor-tmp')))
+
+    def test_traversal_and_absolute_paths_cannot_access_outside_files(self):
+        with tempfile.TemporaryDirectory() as directory:
+            outside = Path(directory).resolve() / 'private.html'
+            outside.write_text('<section class="slide">Outside document</section>')
+            self.assert_file_access_rejected(str(outside), outside)
+            relative = os.path.relpath(outside, server.ROOT)
+            self.assertTrue(relative.startswith('..'))
+            self.assert_file_access_rejected(relative, outside)
+
+    def test_symlinks_cannot_bypass_file_access_boundaries(self):
+        with tempfile.TemporaryDirectory() as directory:
+            outside = Path(directory).resolve() / 'private.html'
+            outside.write_text('<section class="slide">Outside document</section>')
+            internal = self.write('slide-editor/internal.html')
+            for name, target in [('outside.html', outside), ('internal.html', internal)]:
+                alias = server.ROOT / name
+                try:
+                    alias.symlink_to(target)
+                except (OSError, NotImplementedError) as error:
+                    self.skipTest('Symbolic links unavailable: ' + str(error))
+                self.assert_file_access_rejected(name, target)
 
 
 if __name__ == '__main__':
