@@ -107,6 +107,39 @@ test('Browser import and presentation', async t => {
         } finally { await context.close(); }
       });
     }
+    await t.test('images with URL whitespace survive import, export and reopening', async () => {
+      const context = await browser.newContext();
+      try {
+        const swatch = '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="lime"/></svg>';
+        await context.route('https://assets.example.test/swatch.svg', route => route.fulfill({
+          contentType: 'image/svg+xml', body: swatch,
+        }));
+        const data = 'data:image/svg+xml;base64,' + Buffer.from(swatch).toString('base64');
+        const page = await context.newPage();
+        await page.goto(`http://127.0.0.1:${server.address().port}/web/`);
+        const frame = page.frameLocator('#canvas');
+        await frame.locator('.slide').first().waitFor();
+        let buffer = Buffer.from(`<!doctype html><html><head><title>URL whitespace</title></head><body><main class="deck"><section class="slide"><h1>URL whitespace</h1><img id="remote" src=" \nhttps://assets.example.test/swatch.svg\t "><img id="embedded" src=" \n${data}\t "></section></main></body></html>`);
+        for (const name of ['whitespace.html', 'whitespace-export.html']) {
+          await page.locator('#openFolder').click();
+          await page.locator('#htmlFiles').setInputFiles({name, mimeType:'text/html', buffer});
+          await page.locator('#importDialog').waitFor({state:'hidden'});
+          await frame.getByText('URL whitespace', {exact:true}).waitFor();
+          for (const id of ['remote', 'embedded']) {
+            const dimensions = await frame.locator(`#${id}`).evaluate(async image => {
+              await image.decode();
+              return [image.naturalWidth, image.naturalHeight];
+            });
+            assert.deepEqual(dimensions, [100, 100]);
+          }
+          if (name === 'whitespace.html') {
+            const downloadPromise = page.waitForEvent('download');
+            await page.locator('#export').click();
+            buffer = await readFile(await (await downloadPromise).path());
+          }
+        }
+      } finally { await context.close(); }
+    });
     await t.test('SVG images survive folder import and standalone HTML export', async () => {
       const directory = await mkdtemp(path.join(tmpdir(), 'slide-studio-svg-'));
       const context = await browser.newContext();

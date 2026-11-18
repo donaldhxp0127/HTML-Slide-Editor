@@ -13,6 +13,9 @@ window.slideStudioImport = async function(files) {
   parsed.querySelectorAll('base').forEach(el => el.remove());
   const origin = 'https://local-files.invalid/';
   function resolve(reference, from) {
+    // Match browser URL parsing before classifying schemes and fragments.
+    // Keep non-ASCII spaces: they can be part of a local filename.
+    reference = (reference || '').replace(/^[\u0000-\u0020]+|[\u0000-\u0020]+$/g, '').replace(/[\t\n\r]/g, '');
     if (!reference || /^(?:[a-z][\w+.-]*:|\/\/|#)/i.test(reference)) return null;
     const url = new URL(reference, origin+from);
     const key = decodeURIComponent(url.pathname.slice(1));

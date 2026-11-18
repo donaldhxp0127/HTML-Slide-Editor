@@ -138,6 +138,34 @@ test('remote CSS imports remain external instead of requiring local files', asyn
   assert.equal(await importInlineStyle(css), css);
 });
 
+test('URL whitespace does not turn external resources into missing local files', async () => {
+  for (const reference of [
+    ' https://example.com/photo.png ',
+    '\t//example.com/photo.png\r',
+    ' data:image/png;base64,AAAA\t',
+    ' #gradient ',
+    'ht\ttps://example.com/photo.png',
+    ' \t ',
+  ]) {
+    const css = `.slide { background: url("${reference}"); }`;
+    assert.equal(await importInlineStyle(css), css);
+  }
+  const css = '@import " https://example.com/theme.css ";';
+  assert.equal(await importInlineStyle(css), css);
+});
+
+test('URL whitespace normalization preserves local filenames and missing-file errors', async () => {
+  assert.equal(await importInlineStyle('@import " \ttheme.css ";', {
+    'theme.css': 'h1 { color: red; }',
+  }), 'h1 { color: red; }');
+  // Non-ASCII spaces belong to the filename and must not be trimmed.
+  assert.equal(await importInlineStyle('@import "\u00a0theme.css\u00a0";', {
+    '\u00a0theme.css\u00a0': 'h1 { color: blue; }',
+  }), 'h1 { color: blue; }');
+  await assert.rejects(() => importInlineStyle('@import " missing.css ";'),
+    /缺少资源，请导入完整文件夹： missing\.css/);
+});
+
 test('CSS comments do not cause missing-resource errors or get rewritten', async t => {
   for (const comment of [
     '/* @import "unused.css"; */',
