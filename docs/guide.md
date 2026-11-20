@@ -100,6 +100,28 @@ After adding files, refresh the editor, select a deck from the dropdown, and cli
 - **Export PDF / PPTX:** export the current page order, including unsaved visual edits, as a 16:9 PDF or PowerPoint `.pptx`. PDF uses a 2560 × 1440 image per page to preserve appearance; its text is rasterized. PPTX exports browser-measured native text boxes, independent pictures and basic shapes. Inline text styles are retained and wrapped paragraphs are split into editable line boxes to preserve positioning. Background gradients, shadows and decorative surfaces may be images with editable text on top; SVG, transformed groups, clipped containers and other complex effects may be rasterized as a whole. Fonts and text metrics can differ in PowerPoint. Exports include speaker notes in PPTX when available. Generation runs locally (native WebKit capture for macOS PDF; DOM-to-PowerPoint conversion and bundled canvas capture for PPTX), has progress/cancellation, and never overwrites your HTML. External images must allow CORS access.
 - **Present:** open the saved deck in a new tab. Save edits before presenting.
 
+## Keyboard and modifier quick reference
+
+Use `Cmd` on macOS and `Ctrl` on Windows/Linux for the shortcuts below. For element operations, click an element on the canvas first. Arrow keys, Delete/Backspace, and grouping shortcuts do not act on the selection while you are typing in text, the source panel, or a property field.
+
+| Action | Shortcut |
+| --- | --- |
+| Review changes before saving | `Cmd/Ctrl+S` |
+| Undo a visual edit | `Cmd/Ctrl+Z` |
+| Redo a visual edit | `Cmd/Ctrl+Shift+Z` |
+| Move selected unlocked elements by 1 px | Arrow keys |
+| Move selected unlocked elements by 10 px | `Shift` + arrow keys |
+| Delete selected unlocked elements | `Delete` or `Backspace` |
+| Group / ungroup selected elements | `Cmd/Ctrl+G` / `Cmd/Ctrl+Shift+G` |
+| Add or remove an element from the selection | `Shift`, `Cmd`, or `Ctrl` + click |
+| Temporarily bypass snapping when dragging or resizing | Hold `Alt` (`Option` on Mac) |
+| Keep the aspect ratio when resizing from a corner | Hold `Shift` |
+| Finish inline text editing | `Esc` |
+
+To undo a visual edit after working in the source panel or inline text, return focus to the canvas first, or use the toolbar's **Undo** / **Redo** buttons. Unapplied source changes are handled separately with **Apply source** or **Revert source**.
+
+In the online editor and tutorial's in-page presentation, `Right` / `PageDown` goes forward, `Left` / `PageUp` goes back, and `Esc` exits. These keys navigate slides during presentation rather than moving elements. A saved local deck opened in its own tab uses that deck's own navigation controls.
+
 ## Source and visual editing together
 
 Clicking an element automatically opens the source panel, scrolls to its HTML, highlights the corresponding code, and displays its line number. Mapping follows the selected DOM element, so identical text in multiple places is distinguished correctly.
