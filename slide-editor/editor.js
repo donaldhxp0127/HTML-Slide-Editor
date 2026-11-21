@@ -152,7 +152,13 @@ $('applySource').onclick=()=>{
   sourceDraft=false;mount(html);history=history.slice(0,cursor+1);history.push(html);cursor++;dirty=true;buttons();status('源码已应用 · 尚未保存');
 };
 $('preview').onclick=()=>{if(!path)return;if(dirty){alert(t('请先保存，再放映最新内容。'));return;}window.open('/'+path.split('/').map(encodeURIComponent).join('/')+'#'+(current+1),'_blank','noopener');};
-function key(e){if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='s'){e.preventDefault();$('save').click();}if(e.key==='Escape')finish();if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='z'&&!e.target.isContentEditable&&e.target.tagName!=='TEXTAREA'){e.preventDefault();$(e.shiftKey?'redo':'undo').click();}}
+function key(e){
+  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='s'){e.preventDefault();$('save').click();}
+  if(e.key==='Escape')finish();
+  // Leave undo/redo in form controls to the browser, just like inline text.
+  const typing=e.target.isContentEditable||['TEXTAREA','INPUT','SELECT'].includes(e.target.tagName);
+  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='z'&&!typing){e.preventDefault();$(e.shiftKey?'redo':'undo').click();}
+}
 document.addEventListener('keydown',key);window.addEventListener('beforeunload',e=>{if(dirty||sourceDraft){e.preventDefault();e.returnValue='';}});
 initializeLanguage();
 window.slideStudioDecksReady=new Promise(resolve=>{if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',resolve,{once:true});else resolve();}).then(async()=>{

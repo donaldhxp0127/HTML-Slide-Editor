@@ -11,7 +11,7 @@ import path from 'node:path';
 const {chromium} = createRequire(import.meta.url)(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const root = fileURLToPath(new URL('../', import.meta.url));
 
-test('Browser import and presentation', async t => {
+test('Browser editing, import and presentation', async t => {
   const server = createServer(async (request, response) => {
     try {
       const pathname = new URL(request.url, 'http://localhost').pathname;
@@ -107,6 +107,41 @@ test('Browser import and presentation', async t => {
         } finally { await context.close(); }
       });
     }
+    await t.test('form controls do not undo or redo visual edits', async () => {
+      const context = await browser.newContext();
+      try {
+        const page = await context.newPage();
+        await page.goto(`http://127.0.0.1:${server.address().port}/web/`);
+        const frame = page.frameLocator('#canvas');
+        await frame.locator('.slide').first().waitFor();
+        await page.locator('#duplicate').click();
+        await frame.locator('.slide').nth(5).waitFor({state:'attached'});
+        // Number/text inputs and selects must retain their native key behavior.
+        for (const selector of ['#fontSize', '#imageSrc', '#decks']) {
+          for (const modifier of ['Control', 'Meta']) {
+            await page.locator(selector).press(`${modifier}+z`);
+            assert.equal(await page.locator('#redo').isEnabled(), false, `${selector}: ${modifier}+z must not undo the duplicated slide`);
+            assert.equal(await frame.locator('.slide').count(), 6);
+          }
+        }
+        // The same shortcut still works when focus returns to the canvas.
+        await frame.locator('.slide:visible').first().click({position:{x:10,y:10}});
+        await page.keyboard.press('Control+z');
+        await frame.locator('.slide').nth(5).waitFor({state:'detached'});
+        assert.equal(await frame.locator('.slide').count(), 5);
+        for (const selector of ['#fontSize', '#imageSrc', '#decks']) {
+          for (const modifier of ['Control', 'Meta']) {
+            await page.locator(selector).press(`${modifier}+Shift+z`);
+            assert.equal(await page.locator('#redo').isEnabled(), true, `${selector}: ${modifier}+Shift+z must not redo the duplicated slide`);
+            assert.equal(await frame.locator('.slide').count(), 5);
+          }
+        }
+        await frame.locator('.slide:visible').first().click({position:{x:10,y:10}});
+        await page.keyboard.press('Meta+Shift+z');
+        await frame.locator('.slide').nth(5).waitFor({state:'attached'});
+        assert.equal(await frame.locator('.slide').count(), 6);
+      } finally { await context.close(); }
+    });
     await t.test('images with URL whitespace survive import, export and reopening', async () => {
       const context = await browser.newContext();
       try {
