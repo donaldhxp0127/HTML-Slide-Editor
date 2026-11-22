@@ -36,12 +36,12 @@ class LocalServerTest(unittest.TestCase):
         server.ROOT = self.original_root
         self.directory.cleanup()
 
-    def request(self, endpoint, body=None):
+    def request(self, endpoint, body=None, headers=None):
         connection = http.client.HTTPConnection(*self.httpd.server_address, timeout=5)
         try:
             connection.request('GET' if body is None else 'POST', endpoint,
                                body=None if body is None else json.dumps(body),
-                               headers={'Content-Type': 'application/json'})
+                               headers={'Content-Type': 'application/json', **(headers or {})})
             response = connection.getresponse()
             return response.status, json.loads(response.read())
         finally:
@@ -92,6 +92,44 @@ class LocalServerTest(unittest.TestCase):
                 self.write(name)
                 status, _ = self.request('/api/load', {'path': name})
                 self.assertEqual(status, 400)
+
+    def test_allowed_origins_can_load_and_save(self):
+        for index, origin in enumerate([None, 'http://127.0.0.1:8765', 'http://localhost:8765']):
+            with self.subTest(origin=origin):
+                headers = {} if origin is None else {'Origin': origin}
+                name = f'slides/origin-{index}.html'
+                file = self.write(name)
+                original = file.read_bytes()
+                status, loaded = self.request('/api/load', {'path': name}, headers)
+                self.assertEqual(status, 200)
+                self.assertEqual(loaded['html'].encode('utf-8'), original)
+                edited = '<section class="slide">Allowed origin edit</section>'
+                status, saved = self.request('/api/save', {
+                    'path': name, 'version': loaded['version'], 'html': edited,
+                }, headers)
+                self.assertEqual(status, 200)
+                self.assertEqual(file.read_text(), edited)
+                self.assertEqual((server.ROOT / saved['backup']).read_bytes(), original)
+        self.assertFalse(list(server.ROOT.rglob('*.editor-tmp')))
+
+    def test_other_origins_cannot_load_or_save(self):
+        name = 'slides/private.html'
+        file = self.write(name)
+        original = file.read_bytes()
+        for origin in ['https://example.com', 'null', 'http://localhost:8766',
+                       'https://localhost:8765', 'http://localhost.example.com:8765',
+                       'http://127.0.0.1.example.com:8765']:
+            for endpoint in ['/api/load', '/api/save']:
+                with self.subTest(origin=origin, endpoint=endpoint):
+                    status, result = self.request(endpoint, {
+                        'path': name, 'version': server.digest(original),
+                        'html': '<section class="slide">Must not be written</section>',
+                    }, {'Origin': origin})
+                    self.assertEqual(status, 403)
+                    self.assertEqual(result, {'error': '来源不允许'})
+                    self.assertEqual(file.read_bytes(), original)
+                    self.assertFalse((server.ROOT / '.slide-editor-backups').exists())
+                    self.assertFalse(list(server.ROOT.rglob('*.editor-tmp')))
 
     def assert_file_access_rejected(self, requested_path, file):
         original = file.read_bytes()
