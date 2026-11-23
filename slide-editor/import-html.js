@@ -17,7 +17,9 @@ window.slideStudioImport = async function(files) {
     // Keep non-ASCII spaces: they can be part of a local filename.
     reference = (reference || '').replace(/^[\u0000-\u0020]+|[\u0000-\u0020]+$/g, '').replace(/[\t\n\r]/g, '');
     if (!reference || /^(?:[a-z][\w+.-]*:|\/\/|#)/i.test(reference)) return null;
-    const url = new URL(reference, origin+from);
+    // `from` is a decoded file path, not a URL: encode each segment so folder
+    // names containing #, ? or % cannot alter relative resource resolution.
+    const url = new URL(reference, origin+from.split('/').map(encodeURIComponent).join('/'));
     const key = decodeURIComponent(url.pathname.slice(1));
     const file = map.get(key);
     if (!file) throw Error(t('缺少资源，请导入完整文件夹：')+' '+key);

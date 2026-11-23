@@ -175,13 +175,14 @@ test('Browser editing, import and presentation', async t => {
         }
       } finally { await context.close(); }
     });
-    await t.test('SVG images survive folder import and standalone HTML export', async () => {
+    await t.test('SVG images in URL-special folders survive import and standalone HTML export', async () => {
       const directory = await mkdtemp(path.join(tmpdir(), 'slide-studio-svg-'));
       const context = await browser.newContext();
       try {
-        await mkdir(path.join(directory, 'assets'));
-        await writeFile(path.join(directory, 'assets/swatch.svg'), '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="lime"/></svg>');
-        await writeFile(path.join(directory, 'index.html'), `<!doctype html><html><head><title>SVG image fixture</title></head><body><main class="deck"><section class="slide"><h1>SVG image fixture</h1><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="240" height="100"><image id="modern" href="assets/swatch.svg" width="100" height="100"/><image id="legacy" xlink:href="assets/swatch.svg" x="120" width="100" height="100"/></svg></section></main></body></html>`);
+        const deckDirectory = path.join(directory, 'pages #1?100%');
+        await mkdir(path.join(deckDirectory, 'assets'), {recursive:true});
+        await writeFile(path.join(deckDirectory, 'assets/swatch.svg'), '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="lime"/></svg>');
+        await writeFile(path.join(deckDirectory, 'index.html'), `<!doctype html><html><head><title>SVG image fixture</title></head><body><main class="deck"><section class="slide"><h1>SVG image fixture</h1><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="240" height="100"><image id="modern" href="assets/swatch.svg" width="100" height="100"/><image id="legacy" xlink:href="assets/swatch.svg" x="120" width="100" height="100"/></svg></section></main></body></html>`);
         const page = await context.newPage();
         await page.goto(`http://127.0.0.1:${server.address().port}/web/`);
         await page.frameLocator('#canvas').locator('.slide').first().waitFor();

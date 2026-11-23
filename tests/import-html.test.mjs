@@ -112,6 +112,18 @@ test('CSS imports inline quoted and unquoted URLs with nested relative imports',
   }
 });
 
+test('nested CSS imports resolve from folders containing URL-special characters', async t => {
+  for (const directory of ['styles #draft', 'styles ?draft', 'styles %draft', 'styles %20draft']) {
+    await t.test(directory, async () => {
+      const css = await importInlineStyle(`@import "${encodeURIComponent(directory)}/theme.css";`, {
+        [`${directory}/theme.css`]: '@import "nested.css";',
+        [`${directory}/nested.css`]: 'h1 { color: red; }',
+      });
+      assert.equal(css, 'h1 { color: red; }');
+    });
+  }
+});
+
 test('CSS imports reject direct and indirect cycles with the offending path', async t => {
   for (const [name, resources] of [
     ['direct cycle', {'styles/theme.css': '@import url(theme.css);'}],
