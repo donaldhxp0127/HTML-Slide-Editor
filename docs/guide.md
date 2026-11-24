@@ -154,6 +154,17 @@ In the local browser edition, this means another program changed the file after 
 
 Before each successful local file save, the server backs up the previous file under `.slide-editor-backups/`, grouped by timestamp and the original relative path. Check that folder when you need an older local version.
 
+### Restore an older local HTML file from a backup
+
+For the Python local browser edition, each backup contains the HTML **before** that save. The timestamp names the save that created the backup, not the time the old content was originally written.
+
+1. Preserve your current work first: resolve pending source edits and **Export HTML** if the canvas has unsaved changes. Also keep a copy of the current file on disk.
+2. Open the repository's hidden `.slide-editor-backups/` folder in your file manager. Inside the desired timestamp folder, follow the original deck path; for example, `.slide-editor-backups/<timestamp>/my-slides/index.html`.
+3. Copy that HTML into the original deck directory under a new name, such as `my-slides/recovered.html`. Keep the current file and backup intact while checking the recovered copy. Placing it beside the original preserves the starting location for relative resource paths.
+4. Refresh the editor, choose `my-slides/recovered.html` from the dropdown, and click **Open**. Check the text, page order, images and styles before continuing to edit the recovered copy. Backup folders themselves are excluded from the deck dropdown.
+
+These backups contain only the saved HTML file. They do not restore separate CSS, JavaScript or image files, or edits that were never saved. If external resources have changed, recover those separately from your own copies or version history. The online editor's browser drafts do not create this local backup folder.
+
 ### Save in browser did not update the file on my computer
 
 **Save in browser** writes a draft to IndexedDB for this device and site origin. Use **Export HTML** to download the edited document. Browser drafts do not sync between devices and can be cleared or evicted, so export important changes as a durable backup.
