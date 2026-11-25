@@ -25,9 +25,11 @@ class Handler(SimpleHTTPRequestHandler):
             if self.path=='/api/load': return self.reply({'html':raw.decode('utf-8'),'version':digest(raw)})
             if self.path!='/api/save': return self.reply({'error':'不存在'},404)
             if req['version']!=digest(raw): return self.reply({'error':'原文件已被外部修改。请先导出当前修改，再重新打开。'},409)
+            # Reject invalid HTML content before creating backups or temporary files.
+            data=req['html'].encode('utf-8')
             backup=ROOT/'.slide-editor-backups'/datetime.datetime.now().strftime('%Y%m%d-%H%M%S-%f')/p.relative_to(ROOT)
             backup.parent.mkdir(parents=True,exist_ok=True); shutil.copy2(p,backup)
-            data=req['html'].encode('utf-8'); tmp=p.with_name(p.name+'.editor-tmp'); tmp.write_bytes(data); tmp.replace(p)
+            tmp=p.with_name(p.name+'.editor-tmp'); tmp.write_bytes(data); tmp.replace(p)
             self.reply({'version':digest(data),'backup':str(backup.relative_to(ROOT))})
         except Exception as e: self.reply({'error':str(e)},400)
 if __name__=='__main__':

@@ -86,6 +86,28 @@ class LocalServerTest(unittest.TestCase):
                 self.assertEqual(file.read_text(), edited)
         self.assertFalse(list(server.ROOT.rglob('*.editor-tmp')))
 
+    def test_invalid_save_content_does_not_create_backups(self):
+        name = 'slides/deck.html'
+        file = self.write(name)
+        original = file.read_bytes()
+        for label, content in [
+            ('missing HTML', {}),
+            ('null HTML', {'html': None}),
+            ('numeric HTML', {'html': 42}),
+            ('array HTML', {'html': []}),
+            ('object HTML', {'html': {}}),
+            ('unencodable HTML', {'html': '\ud800'}),
+        ]:
+            with self.subTest(content=label):
+                status, result = self.request('/api/save', {
+                    'path': name, 'version': server.digest(original), **content,
+                })
+                self.assertEqual(status, 400)
+                self.assertIn('error', result)
+                self.assertEqual(file.read_bytes(), original)
+                self.assertFalse((server.ROOT / '.slide-editor-backups').exists())
+                self.assertFalse(list(server.ROOT.rglob('*.editor-tmp')))
+
     def test_non_html_and_internal_files_remain_rejected(self):
         for name in ['slides/readme.txt', 'slides/almost.xhtml', 'slide-editor/internal.HTM']:
             with self.subTest(name=name):
