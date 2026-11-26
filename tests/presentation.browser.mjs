@@ -107,6 +107,54 @@ test('Browser editing, import and presentation', async t => {
         } finally { await context.close(); }
       });
     }
+    await t.test('browser saves require confirmation and reject stale tabs without losing drafts', async () => {
+      const context = await browser.newContext();
+      try {
+        const url = `http://127.0.0.1:${server.address().port}/web/`;
+        const first = await context.newPage();
+        await first.goto(url);
+        const firstSlides = first.frameLocator('#canvas').locator('.slide');
+        await firstSlides.first().waitFor();
+        await first.locator('#duplicate').click();
+        await firstSlides.nth(5).waitFor({state:'attached'});
+        await first.locator('#save').click();
+        await first.locator('#cancelSave').click();
+        await first.locator('#saveDialog').waitFor({state:'hidden'});
+        assert.equal(await firstSlides.count(), 6, 'cancel keeps the unsaved canvas');
+
+        // A separate tab shares IndexedDB but must still load the original deck.
+        const stale = await context.newPage();
+        await stale.goto(url);
+        const staleSlides = stale.frameLocator('#canvas').locator('.slide');
+        await staleSlides.first().waitFor();
+        assert.equal(await staleSlides.count(), 5, 'cancel must not persist the edit');
+        await first.locator('#save').click();
+        await first.locator('#confirmSave').click();
+        await first.locator('#saveDialog').waitFor({state:'hidden'});
+
+        // The stale tab still holds the old version and different unsaved work.
+        await stale.locator('#duplicate').click();
+        await staleSlides.nth(5).waitFor({state:'attached'});
+        await stale.locator('#duplicate').click();
+        await staleSlides.nth(6).waitFor({state:'attached'});
+        await stale.locator('#save').click();
+        const conflict = stale.waitForEvent('dialog').then(async dialog => {
+          const message = dialog.message();
+          await dialog.dismiss();
+          return message;
+        });
+        await stale.locator('#confirmSave').click();
+        assert.match(await conflict, /原文件已被外部修改/);
+        await stale.locator('#cancelSave').click();
+        assert.equal(await staleSlides.count(), 7, 'conflict must preserve unsaved work');
+
+        const reopened = await context.newPage();
+        await reopened.goto(url);
+        const savedSlides = reopened.frameLocator('#canvas').locator('.slide');
+        await savedSlides.first().waitFor();
+        assert.equal(await savedSlides.count(), 6, 'only the confirmed, non-stale save persists');
+      } finally { await context.close(); }
+    });
     await t.test('form controls do not undo or redo visual edits', async () => {
       const context = await browser.newContext();
       try {
