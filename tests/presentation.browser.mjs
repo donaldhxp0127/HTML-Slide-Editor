@@ -107,6 +107,51 @@ test('Browser editing, import and presentation', async t => {
         } finally { await context.close(); }
       });
     }
+    await t.test('page ordering, deletion and undo preserve content and the last page', async () => {
+      const context = await browser.newContext();
+      try {
+        const page = await context.newPage();
+        await page.goto(`http://127.0.0.1:${server.address().port}/web/`);
+        const frame = page.frameLocator('#canvas');
+        await frame.locator('.slide').first().waitFor();
+        await page.locator('#openFolder').click();
+        await page.locator('#htmlFiles').setInputFiles({
+          name:'page-management.html', mimeType:'text/html',
+          buffer:Buffer.from('<!doctype html><html><body><main class="deck">' +
+            ['Alpha', 'Beta', 'Gamma'].map(title => `<section class="slide"><h1>${title}</h1></section>`).join('') +
+            '</main></body></html>'),
+        });
+        await frame.getByText('Alpha', {exact:true}).waitFor();
+        const titles = () => frame.locator('.slide h1').allTextContents();
+        await page.getByRole('button', {name:'下移页面 1', exact:true}).click();
+        assert.deepEqual(await titles(), ['Beta', 'Alpha', 'Gamma']);
+        assert.equal(await frame.locator('.slide[data-editor-page] h1').textContent(), 'Alpha');
+
+        await page.locator('#deleteSlide').click();
+        assert.deepEqual(await titles(), ['Beta', 'Gamma']);
+        await page.locator('#undo').click();
+        await frame.getByText('Alpha', {exact:true}).waitFor();
+        assert.deepEqual(await titles(), ['Beta', 'Alpha', 'Gamma']);
+        await page.locator('#redo').click();
+        await frame.getByText('Gamma', {exact:true}).waitFor();
+        assert.deepEqual(await titles(), ['Beta', 'Gamma']);
+        await page.locator('#deleteSlide').click();
+        assert.deepEqual(await titles(), ['Beta']);
+
+        const warning = page.waitForEvent('dialog').then(async dialog => {
+          const message = dialog.message();
+          await dialog.dismiss();
+          return message;
+        });
+        await page.locator('#deleteSlide').click();
+        assert.match(await warning, /请至少保留一页/);
+        assert.deepEqual(await titles(), ['Beta']);
+        // The rejected deletion must not consume an undo step.
+        await page.locator('#undo').click();
+        await frame.locator('.slide').nth(1).waitFor({state:'attached'});
+        assert.deepEqual(await titles(), ['Beta', 'Gamma']);
+      } finally { await context.close(); }
+    });
     await t.test('browser saves require confirmation and reject stale tabs without losing drafts', async () => {
       const context = await browser.newContext();
       try {

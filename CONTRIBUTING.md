@@ -19,7 +19,7 @@ For changes to **Present**, run `npm run test:browser` in an environment with Pl
 
 The web-build tests recreate `web-dist/`. That directory is generated output and is ignored by Git. Keep source changes in `slide-editor/`, `scripts/`, or the tutorial source rather than editing `web-dist/` directly.
 
-For browser save/storage changes, also run `npm run test:browser`. Its shared-browser-context test verifies that cancelling the save review keeps changes unsaved, confirmed saves reopen correctly, and a stale tab cannot overwrite a newer draft or lose its own unsaved canvas edits.
+For browser save/storage or page-management changes, also run `npm run test:browser`. Its shared-browser-context test verifies that cancelling the save review keeps changes unsaved, confirmed saves reopen correctly, and a stale tab cannot overwrite a newer draft or lose its own unsaved canvas edits. Page-management checks cover ordering, keeping the active slide selected after a move, deletion with undo/redo, and retaining the last page without adding an undo step for a rejected deletion.
 
 ## Try the editor locally
 
