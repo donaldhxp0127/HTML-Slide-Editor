@@ -64,6 +64,17 @@ class LocalServerTest(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertEqual(set(result), set(decks))
 
+    def test_discovery_sorts_relative_paths_ignoring_case(self):
+        for name in ['z-deck/index.html', 'slides/zebra.htm', 'slides/Beta.HTML',
+                     'slides/alpha.html', 'A-deck/slides.HTM']:
+            self.write(name)
+        status, result = self.request('/api/decks')
+        self.assertEqual(status, 200)
+        self.assertEqual(result, [
+            'A-deck/slides.HTM', 'slides/alpha.html', 'slides/Beta.HTML',
+            'slides/zebra.htm', 'z-deck/index.html',
+        ])
+
     def test_load_save_and_backup_preserve_each_supported_extension(self):
         for extension in ['.html', '.htm', '.HTML', '.HTM']:
             with self.subTest(extension=extension):
